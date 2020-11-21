@@ -1,17 +1,16 @@
-# ShellUtility
-
 Provides utilities for interacting with the shell.
 
 Utilities can all be installed from NuGet:
 
-> Install-Package ShellUtility.NotifyIcons
-> Install-Package ShellUtility.Screens
+> [Install-Package ShellUtility.NotifyIcons](https://www.nuget.org/packages/ShellUtility.NotifyIcons/)</br>
+> [Install-Package ShellUtility.Screens](https://www.nuget.org/packages/ShellUtility.Screens/)
 
 
 
 # ShellUtility.Screens
 
-Provides info about the users screens. A replacement for System.Windows.Forms.Screen class targeting dotnet standard.
+Provides info about the users screens. </br>
+A replacement for System.Windows.Forms.Screen class targeting .net 5.
 
 ```csharp
 using System.Interop;
@@ -33,11 +32,11 @@ Rect GetCurrentScreenWorkArea()
 
 # ShellUtility.NotifyIcons
 
-Enumerates notify icons on taskbar and provides functions to interact with them.
+Enumerates the notify icons on the taskbar and provides functions to interact with them.
 
 ```csharp
-using ShellUtility.NotifyIcons;
 using System.Linq;
+using ShellUtility.NotifyIcons;
 
 void OpenDiscord()
 {
