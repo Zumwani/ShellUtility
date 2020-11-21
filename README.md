@@ -1,5 +1,3 @@
-# ShellUtility
-
 Provides utilities for interacting with the shell.
 
 Utilities can all be installed from NuGet:
