@@ -11,7 +11,8 @@ Utilities can all be installed from NuGet:
 
 # ShellUtility.Screens
 
-Provides info about the users screens. A replacement for System.Windows.Forms.Screen class targeting .net 5.
+Provides info about the users screens. </br>
+A replacement for System.Windows.Forms.Screen class targeting .net 5.
 
 ```csharp
 using System.Interop;
