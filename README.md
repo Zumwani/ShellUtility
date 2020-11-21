@@ -34,7 +34,7 @@ Rect GetCurrentScreenWorkArea()
 
 # ShellUtility.NotifyIcons
 
-Enumerates notify icons on taskbar and provides functions to interact with them.
+Enumerates the notify icons on the taskbar and provides functions to interact with them.
 
 ```csharp
 using System.Linq;
