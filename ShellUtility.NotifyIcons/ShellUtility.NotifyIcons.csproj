@@ -5,7 +5,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWpf>true</UseWpf>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Description>An utility library to enumerate notification icons in the taskbar.</Description>
+    <Description>An utility library to enumerate notification icons on the taskbar.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <RepositoryType></RepositoryType>
