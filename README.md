@@ -36,8 +36,8 @@ Rect GetCurrentScreenWorkArea()
 Enumerates notify icons on taskbar and provides functions to interact with them.
 
 ```csharp
-using ShellUtility.NotifyIcons;
 using System.Linq;
+using ShellUtility.NotifyIcons;
 
 void OpenDiscord()
 {
