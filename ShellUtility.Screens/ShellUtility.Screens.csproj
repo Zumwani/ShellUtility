@@ -8,6 +8,8 @@
     <Description>An utility library to enumerate the users screens.</Description>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageTags>screen;screens;shell;shellutility;</PackageTags>
+    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using ShellUtility.NotifyIcons;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;

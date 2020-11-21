@@ -11,6 +11,8 @@
     <RepositoryType></RepositoryType>
     <PackageTags>icon;notify;notification-icon;notify-icon;shell;shellutility;</PackageTags>
     <Authors>ShellUtility</Authors>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
