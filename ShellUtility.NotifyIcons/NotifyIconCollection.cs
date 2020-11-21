@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 
 using static ShellUtility.NotifyIcons.Explorer;
 
@@ -46,20 +45,12 @@ namespace ShellUtility.NotifyIcons
 
         #endregion
         
-        private NotifyIconNotifier notifier;
+        private readonly NotifyIconNotifier notifier;
 
-        public NotifyIconCollection() : base(new ObservableCollection<NotifyIcon>()) =>
-            InitializeAfterDelay();
-
-        async void InitializeAfterDelay()
+        public NotifyIconCollection() : base(new ObservableCollection<NotifyIcon>())
         {
-        
-            //Allow consumers to start listening to events so that they may be notified of items added during initialization process
-            await Task.Delay(100);
-
             notifier = new NotifyIconNotifier(OnNotify);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-
         }
 
         /// <summary>Finds an icon with a specified path.</summary>
