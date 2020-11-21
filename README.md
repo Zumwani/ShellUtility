@@ -4,14 +4,14 @@ Provides utilities for interacting with the shell.
 
 Utilities can all be installed from NuGet:
 
-> Install-Package ShellUtility.NotifyIcons
+> Install-Package ShellUtility.NotifyIcons</br>
 > Install-Package ShellUtility.Screens
 
 
 
 # ShellUtility.Screens
 
-Provides info about the users screens. A replacement for System.Windows.Forms.Screen class targeting dotnet standard.
+Provides info about the users screens. A replacement for System.Windows.Forms.Screen class targeting .net 5.
 
 ```csharp
 using System.Interop;
