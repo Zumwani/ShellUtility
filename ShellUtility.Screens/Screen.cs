@@ -9,18 +9,33 @@ using static ShellUtility.Screens.WindowsDesktopAPI.WindowsDesktopAPI;
 namespace ShellUtility.Screens
 {
     
+    /// <summary>Represents a screen on the users system.</summary>
     public class Screen
     {
 
+        /// <summary>The name of this screen.</summary>
         public string Name { get; }
+
+        /// <summary>The device name of this screen.</summary>
         public string DeviceName { get; }
+
+        /// <summary>The adapter (graphics card) that this screen is connected to.</summary>
         public string Adapter { get; }
+
+        /// <summary>The bounds of this screen.</summary>
         public Rectangle Bounds { get; }
+
+        /// <summary>The bounds of this screen, excluding reserved areas, like the taskbar.</summary>
         public Rectangle WorkArea { get; }
+
+        /// <summary>Gets if this screen is set as the primary one.</summary>
         public bool IsPrimary { get; }
+
+        /// <summary>The handle of this screen.</summary>
         public IntPtr Handle { get; }
 
         int? index;
+        /// <summary>The index of this screen.</summary>
         public int Index => index ??= All().ToList().FindIndex(s => s.Handle == Handle);
 
         private Screen(IntPtr handle)
@@ -41,36 +56,45 @@ namespace ShellUtility.Screens
 
         }
 
-        public static Screen FromIndex(int index)
+        /// <summary>Gets the screen at the specified index.</summary>
+        /// <exception cref="IndexOutOfRangeException"/>
+        public static Screen FromIndex(int index, bool throwOnNotFound = true)
         {
             var screen = All()?.ElementAtOrDefault(index);
             if (screen != null)
                 return screen;
-            else
+            else if (throwOnNotFound)
                 throw new IndexOutOfRangeException();
+            else
+                return null;
         }
 
-        public static Screen FromWindowHandle(IntPtr handle)
+        /// <summary>Gets the screen that the specified window is located on.</summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static Screen FromWindowHandle(IntPtr handle, bool throwIfNull = true)
         {
 
             if (handle == IntPtr.Zero)
-                throw new ArgumentNullException(nameof(handle));
+                return !throwIfNull ? null : throw new ArgumentNullException(nameof(handle));
 
             handle = MonitorFromWindow(handle, MonitorOptions.MONITOR_DEFAULTTONEAREST);
             return FromScreenHandle(handle);
 
         }
 
-        public static Screen FromScreenHandle(IntPtr handle)
+        /// <summary>Gets the screen with the specified screen handle.</summary>
+        /// <exception cref="ArgumentNullException"/>
+        public static Screen FromScreenHandle(IntPtr handle, bool throwIfNull = true)
         {
 
             if (handle == IntPtr.Zero)
-                return default;
+                return !throwIfNull ? null : throw new ArgumentNullException(nameof(handle));
 
             return new Screen(handle);
 
         }
 
+        /// <summary>Enumerates all screens on the users system.</summary>
         public static Screen[] All()
         {
 
