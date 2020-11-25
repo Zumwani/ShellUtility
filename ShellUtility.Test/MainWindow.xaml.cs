@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using ShellUtility.NotifyIcons;
+using ShellUtility.TaskbarVisibility;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,15 +13,21 @@ namespace ShellUtility.Test
     public partial class MainWindow : MetroWindow
     {
 
-        public MainWindow()
-        {
+        public MainWindow() =>
             InitializeComponent();
+
+        private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e) =>
+            ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset - e.Delta);
+
+        #region Windows
+
+        private void Window_Expanded(object sender, RoutedEventArgs e)
+        {
+            WindowList.ItemsSource = new Windows.WindowCollection();
         }
 
-        private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset - e.Delta);
-        }
+        #endregion
+        #region Notify icons
 
         private void Invoke(object sender, RoutedEventArgs e)
         {
@@ -45,10 +52,42 @@ namespace ShellUtility.Test
             }
         }
 
+        #endregion
+        #region Screens
+        
         private void Screens_Expanded(object sender, RoutedEventArgs e)
         {
-          ScreensList.ItemsSource = Screens.Screen.All();
+            ScreensList.ItemsSource = Screens.Screen.All();
         }
+
+        #endregion
+        #region Taskbar
+        
+        private void Taskbar_Expanded(object sender, RoutedEventArgs e)
+        {
+
+            TaskbarVisibleToggle.IsOn = Taskbar.IsVisible;
+            Closing -= OnClose;
+            Closing += OnClose;
+
+            static void OnClose(object sender, CancelEventArgs e)
+            {
+                if (!Taskbar.IsVisible)
+                    switch (MessageBox.Show("The taskbar is hidden, do you wish to restore it?", "Taskbar hidden", MessageBoxButton.YesNoCancel))
+                    {
+                        case MessageBoxResult.Yes:
+                            Taskbar.Show(); break;
+                        case MessageBoxResult.Cancel:
+                            e.Cancel = true; break;
+                    }
+            }
+
+        }
+
+        private void TaskbarVisibleToggle_Toggled(object sender, RoutedEventArgs e) =>
+            Taskbar.IsVisible = TaskbarVisibleToggle.IsOn;
+
+        #endregion
 
     }
 

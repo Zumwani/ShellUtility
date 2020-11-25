@@ -7,7 +7,7 @@
                      Title="Test" Height="800" Width="1200" Background="#FF252526"
                      WindowStartupLocation="CenterScreen"
                      DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
-                     PreviewMouseWheel="Window_PreviewMouseWheel">
+                     PreviewMouseWheel="Window_PreviewMouseWheel" FontFamily="Segoe UI Semilight">
     
     <Window.Resources>
 
@@ -41,7 +41,59 @@
     <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 
         <StackPanel Margin="42">
-            
+
+            <Expander Header="Windows" Foreground="White" IsExpanded="False" Expanded="Window_Expanded">
+                <ListView x:Name="WindowList" ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
+                            <Setter Property="Height" Value="42"/>
+                            <Setter Property="Background" Value="#FF252526"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    
+                    <!--<ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Invoke:" IsEnabled="False"/>
+                            <MenuItem Header="Left click"   Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.LeftClick}"/>
+                            <MenuItem Header="Double click" Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.DoubleClick}"/>
+                            <MenuItem Header="Right click"  Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.RightClick}"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>-->
+
+                    <ListView.DataContext>
+                        <CollectionViewSource IsLiveSortingRequested="True">
+                            <CollectionViewSource.SortDescriptions>
+                                <scm:SortDescription PropertyName="Screen"/>
+                                <scm:SortDescription PropertyName="Title"/>
+                            </CollectionViewSource.SortDescriptions>
+                        </CollectionViewSource>
+                    </ListView.DataContext>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Height="26" Width="26" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" RenderOptions.EdgeMode="Aliased"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Screen" DisplayMemberBinding="{Binding Screen}"/>
+                            <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}"/>
+                            <GridViewColumn Header="Path" DisplayMemberBinding="{Binding ProcessPath}"/>
+                            <GridViewColumn Header="Handle" DisplayMemberBinding="{Binding Handle}"/>
+                            <GridViewColumn Header="IsVisible" DisplayMemberBinding="{Binding IsVisible}"/>
+                            <GridViewColumn Header="IsActive" DisplayMemberBinding="{Binding IsActive}"/>
+                            <GridViewColumn Header="Bounds" DisplayMemberBinding="{Binding Bounds}"/>
+                            <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
+                            <GridViewColumn Header="Badge" DisplayMemberBinding="{Binding Badge}"/>
+                            <GridViewColumn Header="Preview" DisplayMemberBinding="{Binding Preview}"/>
+                        </GridView>
+                    </ListView.View>
+
+                </ListView>
+            </Expander>
             <Expander Header="Notify icons" Foreground="White" IsExpanded="False" Expanded="NotifyIcons_Expanded">
                 <ListView x:Name="NotifyIconList" ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
@@ -93,6 +145,13 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+            </Expander>
+            <Expander Header="Taskbar" Foreground="White" Expanded="Taskbar_Expanded">
+                <mahApps:ToggleSwitch x:Name="TaskbarVisibleToggle" Foreground="White" Toggled="TaskbarVisibleToggle_Toggled">
+                    <mahApps:ToggleSwitch.Header>
+                        <TextBlock Text="Taskbar visible:" FontFamily="Segoe UI Semilight"/>
+                    </mahApps:ToggleSwitch.Header>
+                </mahApps:ToggleSwitch>
             </Expander>
             
         </StackPanel>
