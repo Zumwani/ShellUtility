@@ -78,7 +78,7 @@ namespace ShellUtility.Screens
                 return !throwIfNull ? null : throw new ArgumentNullException(nameof(handle));
 
             handle = MonitorFromWindow(handle, MonitorOptions.MONITOR_DEFAULTTONEAREST);
-            return FromScreenHandle(handle);
+            return FromScreenHandle(handle, throwIfNull);
 
         }
 
