@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ShellUtility.NotifyIcons\ShellUtility.NotifyIcons.csproj" />
     <ProjectReference Include="..\ShellUtility.Screens\ShellUtility.Screens.csproj" />
     <ProjectReference Include="..\ShellUtility.TaskbarVisibility\ShellUtility.TaskbarVisibility.csproj" />

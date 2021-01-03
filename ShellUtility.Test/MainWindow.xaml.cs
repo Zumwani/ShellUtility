@@ -23,7 +23,7 @@ namespace ShellUtility.Test
 
         private void Window_Expanded(object sender, RoutedEventArgs e)
         {
-            WindowList.ItemsSource = new Windows.WindowCollection();
+            WindowList.ItemsSource = new Windows.DesktopWindowCollection();
         }
 
         #endregion
