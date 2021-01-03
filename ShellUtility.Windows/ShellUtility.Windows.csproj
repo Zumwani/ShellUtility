@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.19041.0</TargetFramework>
     <UseWpf>true</UseWpf>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageTags>shell;windows;pinvoke</PackageTags>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <Description>An utility to easily enumerate and get info about the windows on the users desktop. Provides functions to minimize, unminimize and close. All properties automatically update and windows are automatically added and removed from collections when they open or close. Supports easily registering for previews of windows.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ShellUtility.Screens" Version="1.0.1" />
+    <PackageReference Include="ShellUtility.Screens" Version="1.0.21" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
   </ItemGroup>
 

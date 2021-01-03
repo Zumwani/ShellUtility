@@ -6,40 +6,156 @@ using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using ShellUtility.Windows.Utility;
 
 namespace ShellUtility.Windows
 {
 
-    static class WindowUtility
+    partial class DesktopWindow
+    {
+
+        /// <summary>
+        /// <para>(attached property) Gets the <see cref="DesktopWindow"/> that this framework element has registered to display a preview for.</para>
+        /// </summary>
+        public static DesktopWindow GetRegisterPreview(FrameworkElement obj) =>
+            (DesktopWindow)obj?.GetValue(RegisterPreviewProperty);
+
+        /// <summary>
+        /// <para>(attached property) Sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</para>
+        /// </summary>
+        public static void SetRegisterPreview(FrameworkElement obj, DesktopWindow value) =>
+            obj?.SetValue(RegisterPreviewProperty, value);
+
+        /// <summary>(attached property) Gets or sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
+        public static readonly DependencyProperty RegisterPreviewProperty =
+            DependencyProperty.RegisterAttached("RegisterPreview", typeof(DesktopWindow), typeof(Preview), new PropertyMetadata(null, OnRegisterPreviewChanged));
+
+        static void OnRegisterPreviewChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+            {
+                (e.OldValue as DesktopWindow)?.Preview?.Unregister(element);
+                (e.NewValue as DesktopWindow)?.Preview?.Register(element);
+            }
+        }
+
+    }
+
+}
+
+namespace ShellUtility.Windows.Utility
+{
+
+    public static class WindowUtility
     {
 
         #region Pinvoke       
-        
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetWindowPlacement(
-            IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
 
-        [Serializable]
-        [StructLayout(LayoutKind.Sequential)]
-        struct WINDOWPLACEMENT
+        delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        #region Helpers
+
+        public static IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex)
         {
-            public int length;
-            public int flags;
-            public ShowWindowCommands showCmd;
-            public System.Drawing.Point ptMinPosition;
-            public System.Drawing.Point ptMaxPosition;
-            public System.Drawing.Rectangle rcNormalPosition;
+            if (IntPtr.Size > 4)
+                return GetClassLongPtr64(hWnd, nIndex);
+            else
+                return new IntPtr(GetClassLongPtr32(hWnd, nIndex));
         }
 
-        enum ShowWindowCommands : int
+        static bool IsAppWindow(IntPtr hWnd)
         {
-            Hide = 0,
-            Normal = 1,
-            Minimized = 2,
-            Maximized = 3,
-        }        
-        
+
+            var style = GetWindowLong(hWnd, GWL.GWL_STYLE); // GWL_STYLE
+
+            // check for WS_VISIBLE and WS_CAPTION flags
+            // (that the window is visible and has a title bar)
+            return (style & 0x10C00000) == 0x10C00000 && (style & 0x10000000) == 0x10000000;
+
+        }
+
+        const int MaxLastActivePopupIterations = 50;
+        static readonly string[] WindowsClassNamesToSkip =
+        {
+            "Shell_TrayWnd",
+            "DV2ControlHost",
+            "MsgrIMEWindowClass",
+            "SysShadow",
+            "Button"
+        };
+
+        static bool EligibleForActivation(IntPtr hWnd, IntPtr lShellWindow)
+        {
+
+            // http://stackoverflow.com/questions/210504/enumerate-windows-like-alt-tab-does
+
+            if (hWnd == lShellWindow)
+                return false;
+
+            var root = GetAncestor(hWnd, GetAncestorFlags.GetRootOwner);
+
+            if (GetLastVisibleActivePopUpOfWindow(root) != hWnd)
+                return false;
+
+            var classNameStringBuilder = new StringBuilder(256);
+            var length = GetClassName(hWnd, classNameStringBuilder, classNameStringBuilder.Capacity);
+            if (length == 0)
+                return false;
+
+            var className = classNameStringBuilder.ToString();
+
+            if (Array.IndexOf(WindowsClassNamesToSkip, className) > -1)
+                return false;
+
+            if (className.StartsWith("WMP9MediaBarFlyout")) //WMP's "now playing" taskbar-toolbar
+                return false;
+
+            return true;
+
+        }
+
+        static IntPtr GetLastVisibleActivePopUpOfWindow(IntPtr window)
+        {
+
+            var level = MaxLastActivePopupIterations;
+            var currentWindow = window;
+
+            while (level-- > 0)
+            {
+                var lastPopUp = GetLastActivePopup(currentWindow);
+
+                if (IsWindowVisible(lastPopUp))
+                    return lastPopUp;
+
+                if (lastPopUp == currentWindow)
+                    return IntPtr.Zero;
+
+                currentWindow = lastPopUp;
+            }
+
+            return IntPtr.Zero;
+
+        }
+
+        #endregion
+        #region Methods
+
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+        static extern IntPtr GetParent(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = false)]
+        static extern IntPtr GetDesktopWindow();
+
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] int dwFlags, [Out] StringBuilder lpExeName, ref int lpdwSize);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr OpenProcess(ProcessAccess processAccess, bool bInheritHandle, int processId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
         [DllImport("user32.dll")]
         static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr ProcessId);
 
@@ -64,19 +180,11 @@ namespace ShellUtility.Windows
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern int GetWindowTextLength(IntPtr hWnd);
 
-        public static IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex)
-        {
-            if (IntPtr.Size > 4)
-                return GetClassLongPtr64(hWnd, nIndex);
-            else
-                return new IntPtr(GetClassLongPtr32(hWnd, nIndex));
-        }
-
         [DllImport("user32.dll", EntryPoint = "GetClassLong")]
-        public static extern uint GetClassLongPtr32(IntPtr hWnd, int nIndex);
+        static extern uint GetClassLongPtr32(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll", EntryPoint = "GetClassLongPtr")]
-        public static extern IntPtr GetClassLongPtr64(IntPtr hWnd, int nIndex);
+        static extern IntPtr GetClassLongPtr64(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
         static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
@@ -107,8 +215,6 @@ namespace ShellUtility.Windows
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
-        delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
         [DllImport("user32.dll")]
         static extern bool ShowWindowAsync(IntPtr hWnd, SW nCmdShow);
 
@@ -117,6 +223,44 @@ namespace ShellUtility.Windows
 
         [DllImport("user32.dll")]
         static extern IntPtr LoadIcon(IntPtr hInstance, IntPtr lpIconName);
+
+        #endregion
+        #region Enums and consts
+
+        const int GCL_HICONSM = -34;
+        const int GCL_HICON = -14;
+
+        const int ICON_SMALL = 0;
+        const int ICON_BIG = 1;
+        const int ICON_SMALL2 = 2;
+
+        const int WM_GETICON = 0x7F;
+
+        [Flags]
+        public enum ProcessAccess : uint
+        {
+            All = 0x001F0FFF,
+            Terminate = 0x00000001,
+            CreateThread = 0x00000002,
+            VirtualMemoryOperation = 0x00000008,
+            VirtualMemoryRead = 0x00000010,
+            VirtualMemoryWrite = 0x00000020,
+            DuplicateHandle = 0x00000040,
+            CreateProcess = 0x000000080,
+            SetQuota = 0x00000100,
+            SetInformation = 0x00000200,
+            QueryInformation = 0x00000400,
+            QueryLimitedInformation = 0x00001000,
+            Synchronize = 0x00100000
+        }
+
+        enum ShowWindowCommands : int
+        {
+            Hide = 0,
+            Normal = 1,
+            Minimized = 2,
+            Maximized = 3,
+        }
 
         enum GetWindowType : uint
         {
@@ -211,7 +355,7 @@ namespace ShellUtility.Windows
         }
 
         [Flags]
-        enum WindowStylesEx : uint
+        public enum WindowStylesEx : uint
         {
             /// <summary>Specifies a window that accepts drag-drop files.</summary>
             WS_EX_ACCEPTFILES = 0x00000010,
@@ -360,7 +504,7 @@ namespace ShellUtility.Windows
         }
 
         [Flags]
-        enum WindowStyles : uint
+        public enum WindowStyles : uint
         {
             /// <summary>The window has a thin-line border.</summary>
             WS_BORDER = 0x800000,
@@ -451,64 +595,19 @@ namespace ShellUtility.Windows
             GetRootOwner = 3
         }
 
-        const int GCL_HICONSM = -34;
-        const int GCL_HICON = -14;
+        #endregion
+        #region Classes and structs
 
-        const int ICON_SMALL = 0;
-        const int ICON_BIG = 1;
-        const int ICON_SMALL2 = 2;
-
-        const int WM_GETICON = 0x7F;
-
-        static bool IsAppWindow(IntPtr hWnd)
+        [Serializable]
+        [StructLayout(LayoutKind.Sequential)]
+        struct WINDOWPLACEMENT
         {
-
-            var style = GetWindowLong(hWnd, GWL.GWL_STYLE); // GWL_STYLE
-
-            // check for WS_VISIBLE and WS_CAPTION flags
-            // (that the window is visible and has a title bar)
-            return (style & 0x10C00000) == 0x10C00000 && (style & 0x10000000) == 0x10000000;
-
-        }
-
-        const int MaxLastActivePopupIterations = 50;
-        static readonly string[] WindowsClassNamesToSkip =
-        {
-            "Shell_TrayWnd",
-            "DV2ControlHost",
-            "MsgrIMEWindowClass",
-            "SysShadow",
-            "Button"
-        };
-
-        static bool EligibleForActivation(IntPtr hWnd, IntPtr lShellWindow)
-        {
-
-            // http://stackoverflow.com/questions/210504/enumerate-windows-like-alt-tab-does
-
-            if (hWnd == lShellWindow)
-                return false;
-
-            var root = GetAncestor(hWnd, GetAncestorFlags.GetRootOwner);
-
-            if (GetLastVisibleActivePopUpOfWindow(root) != hWnd)
-                return false;
-
-            var classNameStringBuilder = new StringBuilder(256);
-            var length = GetClassName(hWnd, classNameStringBuilder, classNameStringBuilder.Capacity);
-            if (length == 0)
-                return false;
-
-            var className = classNameStringBuilder.ToString();
-
-            if (Array.IndexOf(WindowsClassNamesToSkip, className) > -1)
-                return false;
-
-            if (className.StartsWith("WMP9MediaBarFlyout")) //WMP's "now playing" taskbar-toolbar
-                return false;
-
-            return true;
-
+            public int length;
+            public int flags;
+            public ShowWindowCommands showCmd;
+            public System.Drawing.Point ptMinPosition;
+            public System.Drawing.Point ptMaxPosition;
+            public System.Drawing.Rectangle rcNormalPosition;
         }
 
         class RECT
@@ -519,54 +618,85 @@ namespace ShellUtility.Windows
             public int Bottom { get; set; }
         }
 
-        static IntPtr GetLastVisibleActivePopUpOfWindow(IntPtr window)
-        {
-
-            var level = MaxLastActivePopupIterations;
-            var currentWindow = window;
-
-            while (level-- > 0)
-            {
-                var lastPopUp = GetLastActivePopup(currentWindow);
-
-                if (IsWindowVisible(lastPopUp))
-                    return lastPopUp;
-
-                if (lastPopUp == currentWindow)
-                    return IntPtr.Zero;
-
-                currentWindow = lastPopUp;
-            }
-
-            return IntPtr.Zero;
-
-        }
+        #endregion
 
         #endregion
 
-        public static IEnumerable<Window> Enumerate()
+        public static string GetClassname(IntPtr handle)
+        {
+            var sb = new StringBuilder(256);
+            _ = GetClassName(handle, sb, 256);
+            return sb.ToString();
+        }
+
+        public static bool IsKnownWindowToFilterOut(IntPtr handle) =>
+            GetClassname(handle) == "Windows.UI.Core.CoreWindow" ||
+            (GetProcessAndPath(handle).path.EndsWith("explorer.exe") && string.IsNullOrEmpty(GetTitle(handle)));
+
+        public static bool IsUWPWindow(IntPtr handle)
+        {
+            var classname = GetClassname(handle);
+            return classname == "Windows.UI.Core.CoreWindow" ||
+                   classname == "ApplicationFrameWindow";
+        }
+
+        public static bool IsVisibleInTaskbar(IntPtr handle)
         {
 
-            var lShellWindow = GetShellWindow();
+            if (IsOwned(handle))
+                return false;
 
-            var list = new List<Window>();
-            EnumWindows((handle, lParam) =>
+            var shellWindow = GetShellWindow();
+
+            var exstyle = (WindowStylesEx)GetWindowLong(handle, GWL.GWL_EXSTYLE);
+
+            var isAppWindow = exstyle.HasFlag(WindowStylesEx.WS_EX_APPWINDOW);
+            var isEligbleForActivation = EligibleForActivation(handle, shellWindow);
+            var isToolWindow = exstyle.HasFlag(WindowStylesEx.WS_EX_TOOLWINDOW);
+
+            if (!isAppWindow && 
+                !(isEligbleForActivation && !isToolWindow))
+                    return false;
+
+            if (IsUWPWindow(handle) && !UWPWindowUtility.IsOpen(handle))
+                return false;
+
+            return true;
+
+        }
+
+        public static (WindowStyles style, WindowStylesEx exStyle) GetWindowStyle(IntPtr handle)
+        {
+
+            var style = (WindowStyles)GetWindowLong(handle, GWL.GWL_STYLE);
+            var exStyle = (WindowStylesEx)GetWindowLong(handle, GWL.GWL_EXSTYLE);
+
+            return (style, exStyle);
+
+        }
+
+        public static bool IsDesktopWindow(IntPtr handle)
+        {
+            
+            if (!IsWindowVisible(handle))
+                return false;
+
+            if (IsKnownWindowToFilterOut(handle))
+                return false;
+
+            return true;
+
+        }
+
+        public static IEnumerable<DesktopWindow> Enumerate()
+        {
+
+            var list = new List<DesktopWindow>();
+            EnumDesktopWindows(IntPtr.Zero, (handle, lParam) =>
             {
 
-                var style = (WindowStyles)GetWindowLong(handle, GWL.GWL_STYLE);
-                var exstyle = (WindowStylesEx)GetWindowLong(handle, GWL.GWL_EXSTYLE);
-
-                if (style.HasFlag(WindowStyles.WS_VISIBLE) && IsAppWindow(handle))
-                    if ((exstyle.HasFlag(WindowStylesEx.WS_EX_APPWINDOW) || (EligibleForActivation(handle, lShellWindow) && !(exstyle.HasFlag(WindowStylesEx.WS_EX_TOOLWINDOW)))))
-                    {
-
-                        var window = new Window(handle);
-
-                        if (!(window.ProcessPath.EndsWith("explorer.exe") && window.Title == ""))
-                            list.Add(window);
-
-                    }
-
+                if (IsDesktopWindow(handle))
+                    list.Add(DesktopWindow.FromHandle(handle));
                 return true;
 
             }, IntPtr.Zero);
@@ -574,6 +704,12 @@ namespace ShellUtility.Windows
             return list;
 
         }
+
+        public static bool IsOwned(IntPtr handle) =>
+            GetWindow(handle, GetWindowType.GW_OWNER) != IntPtr.Zero;
+
+        public static IntPtr GetActiveWindow() =>
+            GetForegroundWindow();
 
         public static bool IsOpen(IntPtr handle) =>
             IsWindow(handle);
@@ -594,15 +730,19 @@ namespace ShellUtility.Windows
 
         public static void Activate(IntPtr handle)
         {
-            ShowWindowAsync(handle, SW.SHOW);
+            SetVisible(handle, true);
             SetForegroundWindow(handle);
         }
+
+        public static void Deactivate(IntPtr handle) =>
+            ShowWindowAsync(handle, SW.MINIMIZE);
 
         public static void Close(IntPtr handle) =>
             DestroyWindow(handle);
 
         public static string GetTitle(IntPtr handle)
         {
+
             var length = GetWindowTextLength(handle);
             var sb = new StringBuilder(length + 1);
             if (GetWindowText(handle, sb, 256) != 0)
@@ -613,6 +753,9 @@ namespace ShellUtility.Windows
 
         public static IntPtr GetIconHandle(IntPtr handle)
         {
+
+            if (!IsWindow(handle) || IsUWPWindow(handle))
+                return IntPtr.Zero;
 
             Func<IntPtr>[] qualities = 
             { 
@@ -632,6 +775,9 @@ namespace ShellUtility.Windows
         public static BitmapSource GetIcon(IntPtr iconHandle)
         {
 
+            if (iconHandle == IntPtr.Zero)
+                return null;
+
             var image = Imaging.CreateBitmapSourceFromHIcon(iconHandle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(26, 26));
             image.Freeze();
             return image;
@@ -641,18 +787,18 @@ namespace ShellUtility.Windows
         public static (Process process, string path) GetProcessAndPath(IntPtr handle)
         {
 
-            Process process = null;
-            string path = "";
-            try
-            {
-                GetWindowThreadProcessId(handle, out var pid);
-                process = Process.GetProcessById((int)pid);
-                path = process.MainModule.FileName;
-            }
-            catch (Exception)
-            { }
+            if (handle == IntPtr.Zero)
+                return default;
 
-            return (process, path);
+            GetWindowThreadProcessId(handle, out var pid);
+            var process = Process.GetProcessById((int)pid);
+
+            var processHandle = OpenProcess(ProcessAccess.QueryLimitedInformation, false, process.Id);
+            var capacity = 1024;
+            var path = new StringBuilder(capacity);
+            QueryFullProcessImageName(processHandle, 0, path, ref capacity);
+
+            return (process, path.ToString());
 
         }
 
