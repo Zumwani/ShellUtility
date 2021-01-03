@@ -2,8 +2,10 @@ Provides utilities for interacting with the shell.
 
 Utilities can all be installed from NuGet:
 
-> [Install-Package ShellUtility.NotifyIcons](https://www.nuget.org/packages/ShellUtility.NotifyIcons/)</br>
-> [Install-Package ShellUtility.Screens](https://www.nuget.org/packages/ShellUtility.Screens/)
+
+> [Install-Package ShellUtility.NotifyIcons](https://www.nuget.org/packages/ShellUtility.NotifyIcons/)\
+> [Install-Package ShellUtility.Screens](https://www.nuget.org/packages/ShellUtility.Screens/)\
+> [Install-Package ShellUtility.Windows](https://www.nuget.org/packages/ShellUtility.Windows/)
 
 # ShellUtility.Screens
 
