@@ -18,18 +18,7 @@ namespace ShellUtility.Windows
     public partial class DesktopWindow : INotifyPropertyChanged
     {
 
-        #region Active window
-
-        /// <inheritdoc cref="ActiveDesktopWindow"/>
-        public static DesktopWindow Active { get; } = ActiveDesktopWindow.Instance;
-
-        /// <summary>Occurs when the active window changes.</summary>
-        public static event Action ActiveWindowChanged;
-
-        internal static void RaiseActiveWindowChanged() =>
-            ActiveWindowChanged?.Invoke();
-
-        #endregion
+        #region Constructor
 
         /// <summary>Finds the desktop window with the specified handle.</summary>
         public static DesktopWindow FromHandle(IntPtr handle) =>
@@ -77,6 +66,7 @@ namespace ShellUtility.Windows
 
         }
 
+        #endregion
         #region INotifyPropertyChanged
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -133,6 +123,7 @@ namespace ShellUtility.Windows
         }
 
         #endregion
+        #region Properties
 
         #region Init properties
 
@@ -228,11 +219,11 @@ namespace ShellUtility.Windows
 
         #endregion
 
+        #endregion
         #region Public methods
 
-        //Methods
         /// <summary>
-        /// <para>Shows this <see cref="DesktopWindow"/>.</para>
+        /// <para>Shows this <see cref="DesktopWindow"/> and activates it.</para>
         /// <para>(aka normalize, if minimized).</para>
         /// </summary>
         public void Show() => IsVisible = true;
@@ -243,11 +234,18 @@ namespace ShellUtility.Windows
         /// </summary>
         public void Hide() =>  IsVisible = false;
 
+        /// <inheritdoc cref="Hide"/>
+        public void Minimize() => Hide();
+
         /// <summary>Activates this <see cref="DesktopWindow"/>.</summary>
         public void Activate() => WindowUtility.Activate(Handle);
 
         /// <summary>Closes this <see cref="DesktopWindow"/>.</summary>
         public void Close() => WindowUtility.Close(Handle);
+
+        /// <summary>Opens a new instance of the associated app.</summary>
+        public void OpenNewInstance() =>
+            Process.Start(Process.StartInfo ?? new ProcessStartInfo(ProcessPath));
 
         #endregion
         #region Update

@@ -1,5 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
+using ShellUtility.Windows.Utility;
+
+namespace ShellUtility.Windows
+{
+
+    public partial class DesktopWindow
+    {
+
+        /// <inheritdoc cref="ActiveDesktopWindow"/>
+        public static DesktopWindow Active { get; } = ActiveDesktopWindow.Instance;
+
+        /// <summary>Occurs when the active window changes.</summary>
+        public static event Action ActiveWindowChanged;
+
+        internal static void RaiseActiveWindowChanged() =>
+            ActiveWindowChanged?.Invoke();
+
+    }
+
+}
 
 namespace ShellUtility.Windows.Utility
 {
