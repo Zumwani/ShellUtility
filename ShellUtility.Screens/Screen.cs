@@ -13,30 +13,7 @@ namespace ShellUtility.Screens
     public class Screen
     {
 
-        /// <summary>The name of this screen.</summary>
-        public string Name { get; }
-
-        /// <summary>The device name of this screen.</summary>
-        public string DeviceName { get; }
-
-        /// <summary>The adapter (graphics card) that this screen is connected to.</summary>
-        public string Adapter { get; }
-
-        /// <summary>The bounds of this screen.</summary>
-        public Rectangle Bounds { get; }
-
-        /// <summary>The bounds of this screen, excluding reserved areas, like the taskbar.</summary>
-        public Rectangle WorkArea { get; }
-
-        /// <summary>Gets if this screen is set as the primary one.</summary>
-        public bool IsPrimary { get; }
-
-        /// <summary>The handle of this screen.</summary>
-        public IntPtr Handle { get; }
-
-        int? index;
-        /// <summary>The index of this screen.</summary>
-        public int Index => index ??= All().ToList().FindIndex(s => s.Handle == Handle);
+        #region Constructors
 
         private Screen(IntPtr handle)
         {
@@ -136,6 +113,36 @@ namespace ShellUtility.Screens
             return (adapter, deviceName);
 
         }
+
+        #endregion
+        #region Properties
+
+        /// <summary>The name of this screen.</summary>
+        public string Name { get; }
+
+        /// <summary>The device name of this screen.</summary>
+        public string DeviceName { get; }
+
+        /// <summary>The adapter (graphics card) that this screen is connected to.</summary>
+        public string Adapter { get; }
+
+        /// <summary>The bounds of this screen.</summary>
+        public Rectangle Bounds { get; }
+
+        /// <summary>The bounds of this screen, excluding reserved areas, like the taskbar.</summary>
+        public Rectangle WorkArea { get; }
+
+        /// <summary>Gets if this screen is set as the primary one.</summary>
+        public bool IsPrimary { get; }
+
+        /// <summary>The handle of this screen.</summary>
+        public IntPtr Handle { get; }
+
+        int? index;
+        /// <summary>The index of this screen.</summary>
+        public int Index => index ??= All().ToList().FindIndex(s => s.Handle == Handle);
+
+        #endregion
 
     }
 

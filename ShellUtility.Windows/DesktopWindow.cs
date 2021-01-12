@@ -30,8 +30,10 @@ namespace ShellUtility.Windows
             if (handle == IntPtr.Zero)
                 return;
 
-            (Process process, string path) = WindowUtility.GetProcessAndPath(handle);
             Handle = handle;
+            UpdateIfVisibleInTaskbar();
+
+            (Process process, string path) = WindowUtility.GetProcessAndPath(handle);
             ProcessPath = path;
             Process = process;
             IsUWP = WindowUtility.IsUWPWindow(handle);
@@ -102,7 +104,7 @@ namespace ShellUtility.Windows
         void OnWindowMoveOrResizeEnd()
         {
 
-            Rect = WindowUtility.GetIsVisibleAndRect(Handle).rect;
+            Rect = WindowUtility.GetIsVisibleAndRect(Handle).rect ?? default;
             IsMovingOrResizing = false;
 
             OnPropertyChanged(nameof(Rect));
@@ -245,7 +247,10 @@ namespace ShellUtility.Windows
 
         /// <summary>Opens a new instance of the associated app.</summary>
         public void OpenNewInstance() =>
-            Process.Start(Process.StartInfo ?? new ProcessStartInfo(ProcessPath));
+            Process.Start(ProcessPath);
+
+        public override string ToString() =>
+            Title + " (" + Handle + ")";
 
         #endregion
         #region Update
@@ -254,7 +259,7 @@ namespace ShellUtility.Windows
             CheckValueChanged(WindowUtility.GetTitle(Handle), Title, nameof(Title), (v) => Title = v);
 
         protected void UpdateRect() =>
-            CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).rect, Rect, nameof(Rect), (v) => Rect = v);
+            CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).rect, Rect, nameof(Rect), (v) => Rect = v ?? default);
 
         protected void UpdateScreen() =>
             CheckValueChanged(screen.FromWindowHandle(Handle, false)?.Index ?? -1, Screen, nameof(Screen), v => Screen = v);
@@ -275,6 +280,7 @@ namespace ShellUtility.Windows
                 return;
 
             CheckValueChanged(WindowUtility.IsOpen(Handle), IsOpen, nameof(IsOpen), (v) => IsOpen = v);
+            CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).isVisible, isVisible, nameof(IsVisible), (v) => isVisible = v);
             UpdateIcon();
 
         }
@@ -326,9 +332,6 @@ namespace ShellUtility.Windows
             Handle.GetHashCode();
 
         #endregion
-
-        public override string ToString() =>
-            Title + " (" + Handle + ")";
 
     }
 

@@ -5,7 +5,41 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.ComponentModel;
-using System.Windows.Markup;
+
+namespace ShellUtility.Windows
+{
+
+    partial class DesktopWindow
+    {
+
+        /// <summary>
+        /// <para>(attached property) Gets the <see cref="DesktopWindow"/> that this framework element has registered to display a preview for.</para>
+        /// </summary>
+        public static DesktopWindow GetRegisterPreview(FrameworkElement obj) =>
+            (DesktopWindow)obj?.GetValue(RegisterPreviewProperty);
+
+        /// <summary>
+        /// <para>(attached property) Sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</para>
+        /// </summary>
+        public static void SetRegisterPreview(FrameworkElement obj, DesktopWindow value) =>
+            obj?.SetValue(RegisterPreviewProperty, value);
+
+        /// <summary>(attached property) Gets or sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
+        public static readonly DependencyProperty RegisterPreviewProperty =
+            DependencyProperty.RegisterAttached("RegisterPreview", typeof(DesktopWindow), typeof(DesktopWindow), new PropertyMetadata(null, OnRegisterPreviewChanged));
+
+        static void OnRegisterPreviewChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+            {
+                (e.OldValue as DesktopWindow)?.Preview?.Unregister(element);
+                (e.NewValue as DesktopWindow)?.Preview?.Register(element);
+            }
+        }
+
+    }
+
+}
 
 namespace ShellUtility.Windows.Utility
 {
@@ -108,7 +142,7 @@ namespace ShellUtility.Windows.Utility
 
             var handle = new WindowInteropHelper(elementWindow).EnsureHandle();
 
-            if (DwmRegisterThumbnail(handle, window, out var thumb) != 0)
+            if (!Succeeded(DwmRegisterThumbnail(handle, window, out var thumb)))
                 throw new Win32Exception();
 
             registered.Add(element, thumb);
@@ -140,7 +174,7 @@ namespace ShellUtility.Windows.Utility
             if (elementWindow == null)
                 throw new ArgumentException("The element must be hosted in a window.");
 
-            if (DwmQueryThumbnailSourceSize(thumb, out var size) != 0)
+            if (!Succeeded(DwmQueryThumbnailSourceSize(thumb, out var size)))
                 throw new Win32Exception();
 
             var pos = element.TranslatePoint(new Point(), elementWindow);
@@ -156,7 +190,7 @@ namespace ShellUtility.Windows.Utility
             if (size.y < element.ActualHeight)
                 props.rcDestination.Bottom = props.rcDestination.Top + size.y;
 
-            if (DwmUpdateThumbnailProperties(thumb, ref props) != 0)
+            if (!Succeeded(DwmUpdateThumbnailProperties(thumb, ref props)))
                 throw new Win32Exception();
 
         }
@@ -177,11 +211,15 @@ namespace ShellUtility.Windows.Utility
             if (registered.TryGetValue(element, out var thumb))
             {
                 registered.Remove(element);
-                if (DwmUnregisterThumbnail(thumb) != 0)
+                if (!Succeeded(DwmUnregisterThumbnail(thumb)))
                     throw new Win32Exception();
             }
 
         }
+
+        static bool Succeeded(int returnValue) =>
+            returnValue == 0 ||
+            returnValue == -2147024809; //What is this? An error with marshalling or casting types? Throwing Win32Exception says operation completed successfully?
 
         void Element_SizeChanged(object sender, SizeChangedEventArgs e) =>
             Update((FrameworkElement)sender);

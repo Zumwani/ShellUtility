@@ -1,47 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using ShellUtility.Windows.Utility;
-
-namespace ShellUtility.Windows
-{
-
-    partial class DesktopWindow
-    {
-
-        /// <summary>
-        /// <para>(attached property) Gets the <see cref="DesktopWindow"/> that this framework element has registered to display a preview for.</para>
-        /// </summary>
-        public static DesktopWindow GetRegisterPreview(FrameworkElement obj) =>
-            (DesktopWindow)obj?.GetValue(RegisterPreviewProperty);
-
-        /// <summary>
-        /// <para>(attached property) Sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</para>
-        /// </summary>
-        public static void SetRegisterPreview(FrameworkElement obj, DesktopWindow value) =>
-            obj?.SetValue(RegisterPreviewProperty, value);
-
-        /// <summary>(attached property) Gets or sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
-        public static readonly DependencyProperty RegisterPreviewProperty =
-            DependencyProperty.RegisterAttached("RegisterPreview", typeof(DesktopWindow), typeof(Preview), new PropertyMetadata(null, OnRegisterPreviewChanged));
-
-        static void OnRegisterPreviewChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is FrameworkElement element)
-            {
-                (e.OldValue as DesktopWindow)?.Preview?.Unregister(element);
-                (e.NewValue as DesktopWindow)?.Preview?.Register(element);
-            }
-        }
-
-    }
-
-}
 
 namespace ShellUtility.Windows.Utility
 {
@@ -171,10 +137,6 @@ namespace ShellUtility.Windows.Utility
         static extern bool IsWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool DestroyWindow(IntPtr hwnd);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -235,6 +197,7 @@ namespace ShellUtility.Windows.Utility
         const int ICON_SMALL2 = 2;
 
         const int WM_GETICON = 0x7F;
+        const int WM_CLOSE = 0x0010;
 
         [Flags]
         public enum ProcessAccess : uint
@@ -714,31 +677,40 @@ namespace ShellUtility.Windows.Utility
         public static bool IsOpen(IntPtr handle) =>
             IsWindow(handle);
 
-        public static (bool isVisible, Rect rect) GetIsVisibleAndRect(IntPtr handle)
+        public static (bool isVisible, Rect? rect) GetIsVisibleAndRect(IntPtr handle)
         {
 
             var placement = new WINDOWPLACEMENT();
             GetWindowPlacement(handle, ref placement);
-            var isVisible = placement.showCmd == ShowWindowCommands.Normal || placement.showCmd == ShowWindowCommands.Maximized;
-            var rect = new Rect(placement.rcNormalPosition.Left, placement.rcNormalPosition.Top, placement.rcNormalPosition.Width, placement.rcNormalPosition.Height);
-            return (isVisible, rect);
+            var isVisible = placement.showCmd != ShowWindowCommands.Minimized;
+
+            if (placement.rcNormalPosition.Width < 0 || placement.rcNormalPosition.Height < 0)
+                return (isVisible, null);
+            else
+                return (isVisible, ToRect(placement.rcNormalPosition));
 
         }
+
+        static Rect ToRect(Rectangle r) =>
+            new Rect(r.X, r.Y, r.Width, r.Height);
 
         public static bool IsActive(IntPtr handle) =>
             GetForegroundWindow() == handle;
 
-        public static void Activate(IntPtr handle)
-        {
-            SetVisible(handle, true);
+        public static void Activate(IntPtr handle) =>
             SetForegroundWindow(handle);
-        }
 
         public static void Deactivate(IntPtr handle) =>
             ShowWindowAsync(handle, SW.MINIMIZE);
 
+        public static void SetVisible(IntPtr handle, bool visible)
+        {
+            SetForegroundWindow(handle);
+            ShowWindowAsync(handle, visible ? SW.RESTORE : SW.MINIMIZE);
+        }
+
         public static void Close(IntPtr handle) =>
-            DestroyWindow(handle);
+            SendMessage(handle, WM_CLOSE, 0, 0);
 
         public static string GetTitle(IntPtr handle)
         {
@@ -801,9 +773,6 @@ namespace ShellUtility.Windows.Utility
             return (process, path.ToString());
 
         }
-
-        public static void SetVisible(IntPtr handle, bool visible) =>
-            ShowWindowAsync(handle, visible ? SW.SHOW : SW.MINIMIZE);
 
     }
 

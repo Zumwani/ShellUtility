@@ -4,6 +4,9 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                      xmlns:notifyIcon="shellUtility://notifyIcons"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:windows="shellutility://windows" xmlns:test="clr-namespace:ShellUtility.Test"
+                     mc:Ignorable="d"
                      Title="Test" Height="800" Width="1200" Background="#FF252526"
                      WindowStartupLocation="CenterScreen"
                      DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
@@ -44,7 +47,7 @@
 
             <Expander Header="Windows" Foreground="White" IsExpanded="False" Expanded="Window_Expanded">
                 <ListView x:Name="WindowList" ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-
+                    
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
                             <Setter Property="Height" Value="42"/>
@@ -53,14 +56,15 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                     
-                    <!--<ListView.ContextMenu>
+                    <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Invoke:" IsEnabled="False"/>
-                            <MenuItem Header="Left click"   Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.LeftClick}"/>
-                            <MenuItem Header="Double click" Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.DoubleClick}"/>
-                            <MenuItem Header="Right click"  Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.RightClick}"/>
+                            <MenuItem Header="Show" Click="ShowWindow"/>
+                            <MenuItem Header="Activate" Click="ActivateWindow"/>
+                            <MenuItem Header="Minimize" Click="MinimizeWindow"/>
+                            <MenuItem Header="Close" Click="CloseWindow"/>
+                            <MenuItem Header="Open a new instance" Click="OpenNewInstanceOfWindow"/>
                         </ContextMenu>
-                    </ListView.ContextMenu>-->
+                    </ListView.ContextMenu>
 
                     <ListView.DataContext>
                         <CollectionViewSource IsLiveSortingRequested="True">
@@ -79,16 +83,32 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
+                            <GridViewColumn Header="IsVisible">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsVisible, Mode=TwoWay}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="IsActive">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsActive, Mode=OneWay}" IsEnabled="False"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Header="Screen" DisplayMemberBinding="{Binding Screen}"/>
                             <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}"/>
                             <GridViewColumn Header="Path" DisplayMemberBinding="{Binding ProcessPath}"/>
                             <GridViewColumn Header="Handle" DisplayMemberBinding="{Binding Handle}"/>
-                            <GridViewColumn Header="IsVisible" DisplayMemberBinding="{Binding IsVisible}"/>
-                            <GridViewColumn Header="IsActive" DisplayMemberBinding="{Binding IsActive}"/>
-                            <GridViewColumn Header="Bounds" DisplayMemberBinding="{Binding Bounds}"/>
-                            <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
-                            <GridViewColumn Header="Badge" DisplayMemberBinding="{Binding Badge}"/>
-                            <GridViewColumn Header="Preview" DisplayMemberBinding="{Binding Preview}"/>
+                            <GridViewColumn Header="Rect" DisplayMemberBinding="{Binding Rect}"/>
+                            <GridViewColumn Header="Preview">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Show preview" Click="ShowPreview_Click"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
 

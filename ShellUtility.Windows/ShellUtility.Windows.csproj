@@ -7,7 +7,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageTags>shell;windows;pinvoke</PackageTags>
-    <Version>1.0.2</Version>
+    <Version>1.0.*</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Description>An utility to easily enumerate and get info about the windows on the users desktop. Provides functions to minimize, unminimize and close. All properties automatically update and windows are automatically added and removed from collections when they open or close. Supports easily registering for previews of windows.</Description>
   </PropertyGroup>
 

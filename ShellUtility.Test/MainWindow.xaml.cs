@@ -1,6 +1,7 @@
 ﻿using MahApps.Metro.Controls;
 using ShellUtility.NotifyIcons;
 using ShellUtility.TaskbarVisibility;
+using ShellUtility.Windows;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -89,6 +90,27 @@ namespace ShellUtility.Test
 
         #endregion
 
+        private void ShowPreview_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is DesktopWindow window)
+                new PreviewWindow(window).Show();
+        }
+
+        private void ShowWindow(object sender, RoutedEventArgs e) =>
+            (WindowList.SelectedItem as DesktopWindow)?.Show();
+
+        private void ActivateWindow(object sender, RoutedEventArgs e) =>
+            (WindowList.SelectedItem as DesktopWindow)?.Activate();
+
+        private void MinimizeWindow(object sender, RoutedEventArgs e) =>
+            (WindowList.SelectedItem as DesktopWindow)?.Minimize();
+
+        private void CloseWindow(object sender, RoutedEventArgs e) =>
+            (WindowList.SelectedItem as DesktopWindow)?.Close();
+
+        private void OpenNewInstanceOfWindow(object sender, RoutedEventArgs e) =>
+            (WindowList.SelectedItem as DesktopWindow)?.OpenNewInstance();
+    
     }
 
 }
