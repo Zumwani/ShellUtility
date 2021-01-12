@@ -8,7 +8,7 @@
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
     <PackageTags>shell;taskbar;</PackageTags>
-    <Description>A utility to show or hide taskbar.</Description>
+    <Description>A utility to manage visibility of the windows taskbar.</Description>
 
     <Version></Version>
     <AssemblyVersion></AssemblyVersion>

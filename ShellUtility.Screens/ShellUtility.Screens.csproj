@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>ShellUtility</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Description>An utility library to enumerate the users screens.</Description>
+    <Description>An utility library to enumerate info about the screens on the users system.</Description>
     <PackageTags>screen;screens;shell;shellutility;</PackageTags>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
