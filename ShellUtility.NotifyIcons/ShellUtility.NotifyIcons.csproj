@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    
     <OutputType>library</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWpf>true</UseWpf>
@@ -11,10 +12,12 @@
     <RepositoryType></RepositoryType>
     <PackageTags>icon;notify;notification-icon;notify-icon;shell;shellutility;</PackageTags>
     <Authors>ShellUtility</Authors>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
-    <Version>{version}</Version>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
+    
+    <Version></Version>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+
   </PropertyGroup>
 
   <ItemGroup>

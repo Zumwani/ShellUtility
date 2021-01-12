@@ -679,7 +679,7 @@ namespace ShellUtility.Windows.Utility
 
         public static (bool isVisible, Rect? rect) GetIsVisibleAndRect(IntPtr handle)
         {
-
+              
             var placement = new WINDOWPLACEMENT();
             GetWindowPlacement(handle, ref placement);
             var isVisible = placement.showCmd != ShowWindowCommands.Minimized;

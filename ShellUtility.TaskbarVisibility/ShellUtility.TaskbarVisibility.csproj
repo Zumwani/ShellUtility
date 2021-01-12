@@ -1,16 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
     <PackageTags>shell;taskbar;</PackageTags>
     <Description>A utility to show or hide taskbar.</Description>
-    <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
-    <Version>{version}</Version>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+
+    <Version></Version>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+
   </PropertyGroup>
 
   <ItemGroup>

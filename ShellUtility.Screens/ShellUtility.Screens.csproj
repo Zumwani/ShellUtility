@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>ShellUtility</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Description>An utility library to enumerate the users screens.</Description>
-    <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageTags>screen;screens;shell;shellutility;</PackageTags>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <Version>{version}</Version>
+    <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
+
+    <Version></Version>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+
   </PropertyGroup>
 
   <ItemGroup>
