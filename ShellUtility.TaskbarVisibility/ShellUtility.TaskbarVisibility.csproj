@@ -13,6 +13,7 @@
     <Version></Version>
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>
+    <Authors>ShellUtility</Authors>
 
   </PropertyGroup>
 
