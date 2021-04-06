@@ -8,7 +8,7 @@ using static ShellUtility.Screens.WindowsDesktopAPI.WindowsDesktopAPI;
 
 namespace ShellUtility.Screens
 {
-    
+
     /// <summary>Represents a screen on the users system.</summary>
     public class Screen
     {
@@ -89,6 +89,10 @@ namespace ShellUtility.Screens
             return l.ToArray();
 
         }
+
+        /// <summary>Gets the primary screen on the users system.</summary>
+        public static Screen Primary() =>
+            All().FirstOrDefault(s => s.IsPrimary);
 
         (string adapter, string name) GetDisplayInfo()
         {
