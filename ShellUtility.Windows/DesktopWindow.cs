@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShellUtility.Windows.Utility;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
-using ShellUtility.Windows.Utility;
 using screen = ShellUtility.Screens.Screen;
 
 [assembly: XmlnsDefinition("shellutility://windows", "ShellUtility.Windows")]
@@ -57,11 +57,11 @@ namespace ShellUtility.Windows
         ~DesktopWindow()
         {
 
-            HookUtility.RemoveHook(HookUtility.Event.OBJECT_NAMECHANGE,    Handle, UpdateTitle);
-            HookUtility.RemoveHook(HookUtility.Event.OBJECT_PARENTCHANGE,  Handle, UpdateIfVisibleInTaskbar);
-            HookUtility.RemoveHook(HookUtility.Event.OBJECT_DESTROY,       Handle, OnWindowDestroyed);
+            HookUtility.RemoveHook(HookUtility.Event.OBJECT_NAMECHANGE, Handle, UpdateTitle);
+            HookUtility.RemoveHook(HookUtility.Event.OBJECT_PARENTCHANGE, Handle, UpdateIfVisibleInTaskbar);
+            HookUtility.RemoveHook(HookUtility.Event.OBJECT_DESTROY, Handle, OnWindowDestroyed);
             HookUtility.RemoveHook(HookUtility.Event.SYSTEM_MOVESIZESTART, Handle, OnWindowMoveOrResizeStart);
-            HookUtility.RemoveHook(HookUtility.Event.SYSTEM_MOVESIZEEND,   Handle, OnWindowMoveOrResizeEnd);
+            HookUtility.RemoveHook(HookUtility.Event.SYSTEM_MOVESIZEEND, Handle, OnWindowMoveOrResizeEnd);
 
             ActiveWindowChanged -= OnActiveWindowChanged;
             (Preview as IDisposable)?.Dispose();
@@ -89,10 +89,10 @@ namespace ShellUtility.Windows
 
         async void OnWindowMoveOrResizeStart()
         {
-            
+
             IsMovingOrResizing = true;
             OnPropertyChanged(nameof(IsMovingOrResizing));
-            
+
             while (IsMovingOrResizing)
             {
                 UpdateScreen();
@@ -131,7 +131,7 @@ namespace ShellUtility.Windows
 
         /// <summary>The handle of this <see cref="DesktopWindow"/>.</summary>
         public virtual IntPtr Handle { get; init; }
-        
+
         /// <summary>The path to the owning <see cref="System.Diagnostics.Process"/> of this <see cref="DesktopWindow"/>.</summary>
         public virtual string ProcessPath { get; init; }
 
@@ -204,7 +204,7 @@ namespace ShellUtility.Windows
         #region Get / Set properties
 
         bool isVisible;
-        
+
         /// <summary>
         /// <para>Gets whatever the window is visible on the screen.</para>
         /// <para>False equals minimized.</para>
@@ -212,10 +212,10 @@ namespace ShellUtility.Windows
         public bool IsVisible
         {
             get => isVisible;
-            set 
+            set
             {
-                WindowUtility.SetVisible(Handle, value); 
-                isVisible = WindowUtility.GetIsVisibleAndRect(Handle).isVisible; 
+                WindowUtility.SetVisible(Handle, value);
+                isVisible = WindowUtility.GetIsVisibleAndRect(Handle).isVisible;
             }
         }
 
@@ -234,7 +234,7 @@ namespace ShellUtility.Windows
         /// <para>Hides this <see cref="DesktopWindow"/>.</para>
         /// <para>(aka minimizing).</para>
         /// </summary>
-        public void Hide() =>  IsVisible = false;
+        public void Hide() => IsVisible = false;
 
         /// <inheritdoc cref="Hide"/>
         public void Minimize() => Hide();

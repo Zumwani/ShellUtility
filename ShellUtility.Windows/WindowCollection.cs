@@ -1,10 +1,10 @@
-﻿using System;
+﻿using ShellUtility.Windows.Utility;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using ShellUtility.Windows.Utility;
 
 namespace ShellUtility.Windows
 {
@@ -15,7 +15,7 @@ namespace ShellUtility.Windows
 
         /// <summary>Contains the windows that could be shown, but isn't due to properties that may change.</summary>
         readonly List<DesktopWindow> standbyWindows = new List<DesktopWindow>();
-        
+
         public DesktopWindowCollection() : base(new ObservableCollection<DesktopWindow>())
         {
 
@@ -30,7 +30,7 @@ namespace ShellUtility.Windows
 
             Poller.Update += Update;
             Update();
-            
+
         }
 
         ~DesktopWindowCollection()
@@ -102,13 +102,13 @@ namespace ShellUtility.Windows
             //if (!Items.Contains(w))
             {
                 w.IsVisibleInTaskbarChanged += OnWindowIsVisibleInTaskbarChanged;
-                    if (w.IsVisibleInTaskbar)
-                    {
-                        Items.Add(w);
-                        ItemAdded?.Invoke(w);
-                    }
-                    else
-                        standbyWindows.Add(w);
+                if (w.IsVisibleInTaskbar)
+                {
+                    Items.Add(w);
+                    ItemAdded?.Invoke(w);
+                }
+                else
+                    standbyWindows.Add(w);
             }
 
             var action = windows.Count() == 1 ? NotifyCollectionChangedAction.Add : NotifyCollectionChangedAction.Reset;
@@ -118,7 +118,7 @@ namespace ShellUtility.Windows
 
         void Remove(IntPtr handle)
         {
-            var window = Items.FirstOrDefault(w => w.Handle == handle);
+            var window = Items.ToArray().FirstOrDefault(w => w.Handle == handle);
             if (window != null)
                 Remove(window);
         }

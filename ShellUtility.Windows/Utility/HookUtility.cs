@@ -55,7 +55,7 @@ namespace ShellUtility.Windows.Utility
         static void WindowCreated(object sender, AutomationEventArgs e)
         {
             if (sender is AutomationElement element &&
-                element?.Current.NativeWindowHandle is int handle && 
+                element?.Current.NativeWindowHandle is int handle &&
                 genericCallbacks.ContainsKey(Event.OBJECT_CREATE))
                 foreach (var callback in genericCallbacks[Event.OBJECT_CREATE])
                     callback?.Invoke((IntPtr)handle);
@@ -69,9 +69,9 @@ namespace ShellUtility.Windows.Utility
                 return;
 
             //Out-of-context callbacks (see last param of SetWinEventHook()) must be fast, 
-            //running callbacks as a task should make this a non-issue (except for the fact that )
-            Task.Run(() => 
-                Application.Current?.Dispatcher?.Invoke(() => 
+            //running callbacks as a task should make this a non-issue
+            Task.Run(() =>
+                Application.Current?.Dispatcher?.Invoke(() =>
                     Callbacks(@event, hwnd)));
 
         }
@@ -82,13 +82,13 @@ namespace ShellUtility.Windows.Utility
         {
 
             if (genericCallbacks.TryGetValue(@event, out var callbacks))
-                foreach (var callback in callbacks)
+                foreach (var callback in callbacks.ToArray())
                     callback?.Invoke(handle);
 
             if (HookUtility.windowCallbacks.TryGetValue(@event, out var windowCallbacks))
                 if (windowCallbacks.TryGetValue(handle, out var callbacks2))
-                foreach (var callback in callbacks2)
-                    callback?.Invoke();
+                    foreach (var callback in callbacks2.ToArray())
+                        callback?.Invoke();
 
         }
 

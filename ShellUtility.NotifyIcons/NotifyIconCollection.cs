@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-
+using System.Runtime.InteropServices;
 using static ShellUtility.NotifyIcons.Explorer;
 
 namespace ShellUtility.NotifyIcons
@@ -21,7 +21,7 @@ namespace ShellUtility.NotifyIcons
 
         /// <summary>Occurs when an icon is removed.</summary>
         public event Action<NotifyIcon> ItemRemoved;
-        
+
         /// <summary>Occurs when an icon is updated.</summary>
         public event Action<NotifyIcon> ItemUpdated;
 
@@ -44,14 +44,14 @@ namespace ShellUtility.NotifyIcons
 
 
         #endregion
-        
-        private readonly NotifyIconNotifier notifier;
 
-        public NotifyIconCollection() : base(new ObservableCollection<NotifyIcon>())
-        {
+        readonly NotifyIconNotifier notifier;
+
+        [DllImport("shell32.dll")]
+        static extern bool Shell_NotifyIcon(uint dwMessage, [In] ref NOTIFYITEM pnid);
+
+        public NotifyIconCollection() : base(new ObservableCollection<NotifyIcon>()) =>
             notifier = new NotifyIconNotifier(OnNotify);
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
 
         /// <summary>Finds an icon with a specified path.</summary>
         public bool Find(string path, out NotifyIcon icon)
@@ -65,15 +65,22 @@ namespace ShellUtility.NotifyIcons
         {
 
             var path = PathUtility.ExpandPath(item.exe_name);
-            if (action == NotifyIconMessage.NIM_ADD && item.hwnd != IntPtr.Zero)
+
+            if (item.hwnd == IntPtr.Zero)
+                return;
+
+            if (action == NotifyIconMessage.NIM_ADD)
             {
 
                 var icon = new NotifyIcon(
                     path,
                     tooltip: item.tip,
-                    icon: IconUtility.IconFromResourceHandle(item.icon, path),
+                    icon: null,
                     pinStatus: (PinStatus)item.preference,
-                    handle: item.hwnd, item.id, item.guid);
+                    handle: item.hwnd, item.id, item.guid)
+                {
+                    Icon = IconUtility.IconFromResourceHandle(item.icon, path)
+                };
 
                 CallbackMessageUtility.GetCallbackMessages(ref icon);
 
@@ -85,19 +92,24 @@ namespace ShellUtility.NotifyIcons
             else if (action == NotifyIconMessage.NIM_DELETE && Find(path, out var deletedIcon))
             {
 
-                Items.Remove(deletedIcon);
+                _ = Items.Remove(deletedIcon);
                 ItemRemoved?.Invoke(deletedIcon);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, deletedIcon));
 
             }
-            else if (action == NotifyIconMessage.NIM_MODIFY)
+            else if (action is NotifyIconMessage.NIM_MODIFY or NotifyIconMessage.NIM_SETFOCUS or NotifyIconMessage.NIM_SETVERSION)
             {
 
-                var icon = Items.FirstOrDefault(i => i.Path == path);
+                var icon = Items.FirstOrDefault(i => i?.Path == path);
+                if (icon is null)
+                    return;
 
-                icon.Icon = IconUtility.IconFromResourceHandle(item.icon, path);
                 icon.Tooltip = item.tip;
                 icon.PinStatus = (PinStatus)item.preference;
+
+                if (icon.iconHandle != item.icon)
+                    icon.Icon = IconUtility.IconFromResourceHandle(item.icon, path);
+                icon.iconHandle = item.icon;
 
                 CallbackMessageUtility.GetCallbackMessages(ref icon);
 

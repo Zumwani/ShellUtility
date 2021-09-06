@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace ShellUtility.NotifyIcons
 {
 
-    internal static class PathUtility
+    static class PathUtility
     {
 
         [DllImport("shell32.dll")]
@@ -15,7 +15,7 @@ namespace ShellUtility.NotifyIcons
         {
 
             var splits = path.Split("\\");
-            for (int i = 0; i < splits.Length; i++)
+            for (var i = 0; i < splits.Length; i++)
                 if (Guid.TryParse(splits[i], out var guid))
                     if (SHGetKnownFolderPath(guid, 0, IntPtr.Zero, out var pPath) == 0)
                     {

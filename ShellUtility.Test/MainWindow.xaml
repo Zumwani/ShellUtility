@@ -1,16 +1,17 @@
-﻿<mahApps:MetroWindow x:Class="ShellUtility.Test.MainWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:mahApps="http://metro.mahapps.com/winfx/xaml/controls"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-                     xmlns:notifyIcon="shellUtility://notifyIcons"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:windows="shellutility://windows" xmlns:test="clr-namespace:ShellUtility.Test"
-                     mc:Ignorable="d"
-                     Title="Test" Height="800" Width="1200" Background="#FF252526"
-                     WindowStartupLocation="CenterScreen"
-                     DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
-                     PreviewMouseWheel="Window_PreviewMouseWheel" FontFamily="Segoe UI Semilight">
+﻿<mahApps:MetroWindow 
+    x:Class="ShellUtility.Test.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:mahApps="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+    xmlns:notifyIcon="shellUtility://notifyIcons"
+    mc:Ignorable="d"
+    Title="Test" Height="800" Width="1200" Background="#FF252526"
+    WindowStartupLocation="CenterScreen"
+    DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
+    PreviewMouseWheel="Window_PreviewMouseWheel" FontFamily="Segoe UI Semilight">
     
     <Window.Resources>
 
@@ -34,6 +35,10 @@
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
+        <Style TargetType="Expander" BasedOn="{StaticResource MahApps.Styles.Expander}">
+            <Setter Property="Background" Value="#FF0767B4"/>
+        </Style>
+        
         <Style TargetType="ListView" BasedOn="{StaticResource MahApps.Styles.ListView}">
             <Setter Property="Background" Value="#FF0767B4"/>
             <Setter Property="Margin" Value="-5"/>
@@ -123,6 +128,7 @@
                             <MenuItem Header="Left click"   Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.LeftClick}"/>
                             <MenuItem Header="Double click" Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.DoubleClick}"/>
                             <MenuItem Header="Right click"  Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.RightClick}"/>
+                            <MenuItem Header="Mouse move"  Click="Invoke" Tag="{x:Static notifyIcon:NotifyIconInvokeAction.MouseMove}"/>
                         </ContextMenu>
                     </ListView.ContextMenu>
 
@@ -162,6 +168,19 @@
                             <GridViewColumn Header="Work area"      DisplayMemberBinding="{Binding WorkArea}"/>
                             <GridViewColumn Header="Is Primary"     DisplayMemberBinding="{Binding IsPrimary}"/>
                             <GridViewColumn Header="Handle"         DisplayMemberBinding="{Binding Handle}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Expander>
+            <Expander Header="Uri protocols" Foreground="White" Expanded="UriProtocolsList_Expanded" Background="#FF0767B4">
+                <ListView x:Name="UriProtocolsList">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Protocol"       DisplayMemberBinding="{Binding Protocol}"/>
+                            <GridViewColumn Header="Display name"   DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Scope"          DisplayMemberBinding="{Binding Scope}"/>
+                            <GridViewColumn Header="Command"        DisplayMemberBinding="{Binding Command}"/>
+                            <GridViewColumn Header="Default icon"   DisplayMemberBinding="{Binding DefaultIcon}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>

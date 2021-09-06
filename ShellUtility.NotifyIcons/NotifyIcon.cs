@@ -18,7 +18,7 @@ namespace ShellUtility.NotifyIcons
 
     public enum NotifyIconInvokeAction
     {
-        LeftClick, RightClick, DoubleClick
+        LeftClick, RightClick, DoubleClick, MouseMove
     }
 
     /// <summary>Represents an icon that is displayed on the notification area of the taskbar.</summary>
@@ -84,6 +84,7 @@ namespace ShellUtility.NotifyIcons
             internal set { handle = value; OnPropertyChanged(); }
         }
 
+        internal IntPtr iconHandle;
         /// <summary>The icon of the icon.</summary>
         public BitmapSource Icon
         {
@@ -126,7 +127,7 @@ namespace ShellUtility.NotifyIcons
 
         /// <summary>Invokes the selected action on the icon.</summary>
         public void Invoke(NotifyIconInvokeAction action) =>
-            ClickUtility.SimulateClick(this, action);
+            CallbackUtility.Simulate(this, action);
 
     }
 

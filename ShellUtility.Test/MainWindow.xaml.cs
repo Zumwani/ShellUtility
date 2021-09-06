@@ -55,7 +55,7 @@ namespace ShellUtility.Test
 
         #endregion
         #region Screens
-        
+
         private void Screens_Expanded(object sender, RoutedEventArgs e)
         {
             ScreensList.ItemsSource = Screens.Screen.All();
@@ -63,7 +63,7 @@ namespace ShellUtility.Test
 
         #endregion
         #region Taskbar
-        
+
         private void Taskbar_Expanded(object sender, RoutedEventArgs e)
         {
 
@@ -110,7 +110,10 @@ namespace ShellUtility.Test
 
         private void OpenNewInstanceOfWindow(object sender, RoutedEventArgs e) =>
             (WindowList.SelectedItem as DesktopWindow)?.OpenNewInstance();
-    
+
+        private void UriProtocolsList_Expanded(object sender, RoutedEventArgs e) =>
+            UriProtocolsList.ItemsSource = UriProtocols.UriProtocols.Enumerate();
+
     }
 
 }

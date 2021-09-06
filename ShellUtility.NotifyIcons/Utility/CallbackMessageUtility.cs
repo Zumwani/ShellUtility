@@ -1,10 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using ShellUtility.NotifyIcons;
+using System;
 using System.Collections.Generic;
-using ShellUtility.NotifyIcons;
 using System.Linq;
+using System.Runtime.InteropServices;
 
-internal static class CallbackMessageUtility
+static class CallbackMessageUtility
 {
 
     //Code taken from:
@@ -163,14 +163,14 @@ internal static class CallbackMessageUtility
 
     }
 
-
     public static Dictionary<IntPtr, (uint nMsg, int wParam)> GetCallbackMessages()
     {
 
         var items1 = GetCallbackMessages(GetUserToolbar());
         var items2 = GetCallbackMessages(GetUserToolbarOverflow());
 
-        return items1.Concat(items2).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        //TODO: Could GroupBy here discard values sometimes? (we need to group or make keys distinct key already exist exception may occur sometimes otherwise)
+        return items1.Concat(items2).GroupBy(i => i.Key).ToDictionary(g => g.Key, g => g.FirstOrDefault().Value);
 
     }
 
@@ -181,19 +181,19 @@ internal static class CallbackMessageUtility
         {
 
             var result = new Dictionary<IntPtr, (uint nMsg, int wParam)>();
-            if (handle == IntPtr.Zero) 
+            if (handle == IntPtr.Zero)
                 return result;
 
             var count = (int)SendMessage(handle, TB_BUTTONCOUNT, IntPtr.Zero, IntPtr.Zero);
-            if (count == 0) 
+            if (count == 0)
                 return result;
 
-            if (GetWindowThreadProcessId(handle, out uint pid) == 0)
+            if (GetWindowThreadProcessId(handle, out var pid) == 0)
                 return result;
 
             var process = OpenProcess(ProcessAccess.AllAccess, false, (int)pid);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
 
                 var sizeOfTbButton = Marshal.SizeOf(Is64Bits() ? typeof(TBBUTTON64) : typeof(TBBUTTON32));
@@ -202,21 +202,21 @@ internal static class CallbackMessageUtility
                 var pTBBUTTON = VirtualAllocEx(process, IntPtr.Zero, (uint)sizeOfTbButton, AllocationType.Commit, MemoryProtection.ReadWrite);
 
                 // Ask explorer.exe to fill the structure we just allocated
-                SendMessage(handle, TB_GETBUTTON, new IntPtr(i), pTBBUTTON);
+                _ = SendMessage(handle, TB_GETBUTTON, new IntPtr(i), pTBBUTTON);
 
                 // Read the structure from explorer.exe's memory
                 object obj;
                 obj = new TBBUTTON64();
-                ReadProcessMemory(process, pTBBUTTON, obj, sizeOfTbButton, out int read);
+                _ = ReadProcessMemory(process, pTBBUTTON, obj, sizeOfTbButton, out int read);
                 var tbbutton = ConvertToTBButton32(obj);
 
-                VirtualFreeEx(process, pTBBUTTON, sizeOfTbButton, FreeType.Decommit | FreeType.Release);
+                _ = VirtualFreeEx(process, pTBBUTTON, sizeOfTbButton, FreeType.Decommit | FreeType.Release);
 
                 // Get data associated with icon
                 var data = new IntPtr((int)tbbutton.dwData);
 
                 obj = new SysTrayData();
-                ReadProcessMemory(process, data, obj, Marshal.SizeOf(typeof(SysTrayData)), out read);
+                _ = ReadProcessMemory(process, data, obj, Marshal.SizeOf(typeof(SysTrayData)), out read);
                 var trayData = (SysTrayData)obj;
 
                 FixTrayDataAnyCPU(ref trayData);
@@ -229,7 +229,7 @@ internal static class CallbackMessageUtility
 
             }
 
-            CloseHandle(process);
+            _ = CloseHandle(process);
             return result;
 
         }
@@ -273,7 +273,7 @@ internal static class CallbackMessageUtility
     static TBBUTTON32 ConvertToTBButton32(object obj) =>
         obj is not TBBUTTON64 tbb64
         ? (TBBUTTON32)obj
-        : new TBBUTTON32()
+        : new()
         {
             dwData = tbb64.dwData,
             fsState = tbb64.fsState,

@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 namespace ShellUtility.NotifyIcons
 {
 
-    internal static class ClickUtility
+    static class CallbackUtility
     {
 
         #region Pinvoke
-
+        const int WM_USER = 0x0400;
+        const int NIN_BALLOONSHOW = WM_USER + 2;
         const int WM_LBUTTONDOWN = 0x201;
         const int WM_LBUTTONUP = 0x202;
         const int WM_LBUTTONDBLCLK = 0x203;
         const int WM_RBUTTONDOWN = 0x204;
         const int WM_RBUTTONUP = 0x205;
+        const int WM_MOUSEMOVE = 0x0200;
 
         [StructLayout(LayoutKind.Sequential)]
         struct POINT
@@ -45,8 +47,8 @@ namespace ShellUtility.NotifyIcons
 
         #endregion
 
-        /// <summary>Simulates a mouse click on the specified icon.</summary>
-        public static void SimulateClick(NotifyIcon icon, NotifyIconInvokeAction action)
+        /// <summary>Simulates an event on the specified icon.</summary>
+        public static void Simulate(NotifyIcon icon, NotifyIconInvokeAction action)
         {
 
             if (!GetCursorPos(out var mousePos))
@@ -58,9 +60,10 @@ namespace ShellUtility.NotifyIcons
             Action GetAction() =>
                 action switch
                 {
-                    NotifyIconInvokeAction.LeftClick   => () => SimulateClick(icon, (IntPtr)0x400, WM_LBUTTONDOWN, WM_LBUTTONUP),
-                    NotifyIconInvokeAction.RightClick  => () => SimulateClick(icon, (IntPtr)((icon.CallbackParam << 16) | 0x7B), WM_RBUTTONDOWN, WM_RBUTTONUP, specificMessageWParam: pos),
+                    NotifyIconInvokeAction.LeftClick => () => SimulateClick(icon, (IntPtr)0x400, WM_LBUTTONDOWN, WM_LBUTTONUP),
                     NotifyIconInvokeAction.DoubleClick => () => SimulateClick(icon, (IntPtr)0x200, WM_LBUTTONDBLCLK),
+                    NotifyIconInvokeAction.RightClick => () => SimulateClick(icon, (IntPtr)((icon.CallbackParam << 16) | 0x7B), WM_RBUTTONDOWN, WM_RBUTTONUP, specificMessageWParam: pos),
+                    NotifyIconInvokeAction.MouseMove => () => SimulateClick(icon, (IntPtr)((icon.CallbackParam << 16) | 0x7B), WM_MOUSEMOVE, specificMessageWParam: pos),
                     _ => null,
                 };
 
@@ -75,11 +78,11 @@ namespace ShellUtility.NotifyIcons
                     return;
 
                 if (down.HasValue)
-                    SendMessage(icon.Handle, icon.CallbackMessage, icon.CallbackParam, (IntPtr)down);
+                    _ = SendMessage(icon.Handle, icon.CallbackMessage, icon.CallbackParam, (IntPtr)down);
                 if (up.HasValue)
-                    SendMessage(icon.Handle, icon.CallbackMessage, icon.CallbackParam, (IntPtr)up);
+                    _ = SendMessage(icon.Handle, icon.CallbackMessage, icon.CallbackParam, (IntPtr)up);
 
-                SendMessage(icon.Handle, icon.CallbackMessage, specificMessageWParam ?? icon.CallbackParam, specificMessage);
+                _ = SendMessage(icon.Handle, icon.CallbackMessage, specificMessageWParam ?? icon.CallbackParam, specificMessage);
 
             });
 
