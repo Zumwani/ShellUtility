@@ -22,7 +22,7 @@ namespace ShellUtility.Windows
 
         /// <summary>Finds the desktop window with the specified handle.</summary>
         public static DesktopWindow FromHandle(IntPtr handle) =>
-            new DesktopWindow(handle);
+            new(handle);
 
         internal DesktopWindow(IntPtr handle)
         {
@@ -33,11 +33,12 @@ namespace ShellUtility.Windows
             Handle = handle;
             UpdateIfVisibleInTaskbar();
 
-            (Process process, string path) = WindowUtility.GetProcessAndPath(handle);
+            (var process, var path) = WindowUtility.GetProcessAndPath(handle);
             ProcessPath = path;
             Process = process;
             IsUWP = WindowUtility.IsUWPWindow(handle);
             Preview = new Preview(handle);
+            Classname = WindowUtility.GetClassname(handle);
 
             UpdateTitle();
             UpdateRect();
@@ -132,6 +133,9 @@ namespace ShellUtility.Windows
         /// <summary>The handle of this <see cref="DesktopWindow"/>.</summary>
         public virtual IntPtr Handle { get; init; }
 
+        /// <summary>The classname of this <see cref="DesktopWindow"/>.</summary>
+        public virtual string Classname { get; init; }
+
         /// <summary>The path to the owning <see cref="System.Diagnostics.Process"/> of this <see cref="DesktopWindow"/>.</summary>
         public virtual string ProcessPath { get; init; }
 
@@ -204,6 +208,7 @@ namespace ShellUtility.Windows
         #region Get / Set properties
 
         bool isVisible;
+        bool disposedValue;
 
         /// <summary>
         /// <para>Gets whatever the window is visible on the screen.</para>
@@ -326,7 +331,7 @@ namespace ShellUtility.Windows
             Equals(obj as DesktopWindow);
 
         public bool Equals(DesktopWindow obj) =>
-            obj != null && obj.Handle == this.Handle;
+            obj != null && obj.Handle == Handle;
 
         public override int GetHashCode() =>
             Handle.GetHashCode();

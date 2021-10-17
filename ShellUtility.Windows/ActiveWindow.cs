@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ShellUtility.Windows.Utility;
+using System;
 using System.Diagnostics;
-using ShellUtility.Windows.Utility;
 
 namespace ShellUtility.Windows
 {
@@ -34,7 +34,7 @@ namespace ShellUtility.Windows.Utility
         /// <inheritdoc cref="ActiveDesktopWindow"/>
         internal static DesktopWindow Instance { get; } = new ActiveDesktopWindow();
 
-        private ActiveDesktopWindow() : base(IntPtr.Zero)
+        ActiveDesktopWindow() : base(IntPtr.Zero)
         {
             Update();
             HookUtility.AddHook(HookUtility.Event.SYSTEM_FOREGROUND, Update);
@@ -58,12 +58,13 @@ namespace ShellUtility.Windows.Utility
             if (prevHandle != handle)
             {
 
-                (Process process, string path) = WindowUtility.GetProcessAndPath(handle);
-                
+                (var process, var path) = WindowUtility.GetProcessAndPath(handle);
+
                 this.handle = handle;
                 this.path = path;
                 this.process = process;
-            
+                classname = WindowUtility.GetClassname(handle);
+
                 isUWP = WindowUtility.IsUWPWindow(handle);
                 UpdateIcon(updateUWP: true);
                 UpdateTitle();
@@ -76,7 +77,8 @@ namespace ShellUtility.Windows.Utility
                 OnPropertyChanged(nameof(ProcessPath));
                 OnPropertyChanged(nameof(Process));
                 OnPropertyChanged(nameof(IsUWP));
-            
+                OnPropertyChanged(nameof(Classname));
+
             }
 
             base.Update();
@@ -93,21 +95,25 @@ namespace ShellUtility.Windows.Utility
         string path;
         bool isUWP;
         Preview preview;
+        string classname;
 
-        /// <inheritdoc cref="DesktopWindow.Handle"/>
+        /// <inheritdoc/>
         public override IntPtr Handle => handle;
-        
-        /// <inheritdoc cref="DesktopWindow.Process"/>
+
+        /// <inheritdoc/>
         public override Process Process => process;
 
-        /// <inheritdoc cref="DesktopWindow.ProcessPath"/>
+        /// <inheritdoc/>
         public override string ProcessPath => path;
 
-        /// <inheritdoc cref="DesktopWindow.IsUWP"/>
+        /// <inheritdoc/>
         public override bool IsUWP => isUWP;
 
-        /// <inheritdoc cref="DesktopWindow.Preview"/>
+        /// <inheritdoc/>
         public override Preview Preview => preview;
+
+        /// <inheritdoc/>
+        public override string Classname => classname;
 
     }
 
