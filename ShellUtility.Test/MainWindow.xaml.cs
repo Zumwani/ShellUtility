@@ -111,9 +111,6 @@ namespace ShellUtility.Test
         private void OpenNewInstanceOfWindow(object sender, RoutedEventArgs e) =>
             (WindowList.SelectedItem as DesktopWindow)?.OpenNewInstance();
 
-        private void UriProtocolsList_Expanded(object sender, RoutedEventArgs e) =>
-            UriProtocolsList.ItemsSource = UriProtocols.UriProtocols.Enumerate();
-
     }
 
 }
