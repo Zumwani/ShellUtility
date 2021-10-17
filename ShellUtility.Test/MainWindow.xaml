@@ -172,19 +172,6 @@
                     </ListView.View>
                 </ListView>
             </Expander>
-            <Expander Header="Uri protocols" Foreground="White" Expanded="UriProtocolsList_Expanded" Background="#FF0767B4">
-                <ListView x:Name="UriProtocolsList">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Protocol"       DisplayMemberBinding="{Binding Protocol}"/>
-                            <GridViewColumn Header="Display name"   DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="Scope"          DisplayMemberBinding="{Binding Scope}"/>
-                            <GridViewColumn Header="Command"        DisplayMemberBinding="{Binding Command}"/>
-                            <GridViewColumn Header="Default icon"   DisplayMemberBinding="{Binding DefaultIcon}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Expander>
             <Expander Header="Taskbar" Foreground="White" Expanded="Taskbar_Expanded">
                 <mahApps:ToggleSwitch x:Name="TaskbarVisibleToggle" Foreground="White" Toggled="TaskbarVisibleToggle_Toggled">
                     <mahApps:ToggleSwitch.Header>
