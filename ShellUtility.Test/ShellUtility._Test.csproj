@@ -18,7 +18,6 @@
     <ProjectReference Include="..\ShellUtility.NotifyIcons\ShellUtility.NotifyIcons.csproj" />
     <ProjectReference Include="..\ShellUtility.Screens\ShellUtility.Screens.csproj" />
     <ProjectReference Include="..\ShellUtility.TaskbarVisibility\ShellUtility.TaskbarVisibility.csproj" />
-    <ProjectReference Include="..\ShellUtility.UriProtocols\ShellUtility.UriProtocols.csproj" />
     <ProjectReference Include="..\ShellUtility.Windows\ShellUtility.Windows.csproj" />
   </ItemGroup>
 
