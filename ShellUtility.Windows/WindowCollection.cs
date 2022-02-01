@@ -1,10 +1,10 @@
-﻿using ShellUtility.Windows.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using ShellUtility.Windows.Utility;
 
 namespace ShellUtility.Windows
 {
@@ -86,8 +86,11 @@ namespace ShellUtility.Windows
         #endregion
         #region Add remove
 
-        void Add(IntPtr handle) =>
-            Add(DesktopWindow.FromHandle(handle));
+        void Add(IntPtr handle)
+        {
+            if (!this.Any(w => w.Handle == handle))
+                Add(DesktopWindow.FromHandle(handle));
+        }
 
         void Add(DesktopWindow window) =>
             AddRange(window);
@@ -99,17 +102,17 @@ namespace ShellUtility.Windows
         {
 
             foreach (var w in windows)
-            //if (!Items.Contains(w))
-            {
-                w.IsVisibleInTaskbarChanged += OnWindowIsVisibleInTaskbarChanged;
-                if (w.IsVisibleInTaskbar)
+                if (!Contains(w))
                 {
-                    Items.Add(w);
-                    ItemAdded?.Invoke(w);
+                    w.IsVisibleInTaskbarChanged += OnWindowIsVisibleInTaskbarChanged;
+                    if (w.IsVisibleInTaskbar)
+                    {
+                        Items.Add(w);
+                        ItemAdded?.Invoke(w);
+                    }
+                    else
+                        standbyWindows.Add(w);
                 }
-                else
-                    standbyWindows.Add(w);
-            }
 
             var action = windows.Count() == 1 ? NotifyCollectionChangedAction.Add : NotifyCollectionChangedAction.Reset;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, action == NotifyCollectionChangedAction.Add ? windows : null));

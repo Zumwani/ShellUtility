@@ -19,7 +19,7 @@ namespace ShellUtility.Screens
         {
 
             var info = new MonitorInfoEx();
-            GetMonitorInfo(new HandleRef(null, handle), info);
+            _ = GetMonitorInfo(new HandleRef(null, handle), info);
 
             Bounds = info.rcMonitor;
             WorkArea = info.rcWork;
@@ -27,9 +27,10 @@ namespace ShellUtility.Screens
             DeviceName = new string(info.szDevice).TrimEnd((char)0).TrimStart(@"\\.\".ToCharArray());
             Handle = handle;
 
-            var (adapter, name) = GetDisplayInfo();
+            var (adapter, name, index) = GetDisplayInfo();
             Name = name;
             Adapter = adapter;
+            Index = index;
 
         }
 
@@ -84,7 +85,7 @@ namespace ShellUtility.Screens
                 return true;
             }
 
-            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, new EnumMonitors(EnumMonitor), IntPtr.Zero);
+            _ = EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, new EnumMonitors(EnumMonitor), IntPtr.Zero);
 
             return l.ToArray();
 
@@ -94,7 +95,7 @@ namespace ShellUtility.Screens
         public static Screen Primary() =>
             All().FirstOrDefault(s => s.IsPrimary);
 
-        (string adapter, string name) GetDisplayInfo()
+        (string adapter, string name, int index) GetDisplayInfo()
         {
 
             var adapter = "";
@@ -111,10 +112,10 @@ namespace ShellUtility.Screens
                 i += 1;
             }
 
-            EnumDisplayDevices(device.DeviceName, 0, ref device, 0);
+            _ = EnumDisplayDevices(device.DeviceName, 0, ref device, 0);
             var deviceName = device.DeviceString;
 
-            return (adapter, deviceName);
+            return (adapter, deviceName, i);
 
         }
 
@@ -142,9 +143,8 @@ namespace ShellUtility.Screens
         /// <summary>The handle of this screen.</summary>
         public IntPtr Handle { get; }
 
-        int? index;
         /// <summary>The index of this screen.</summary>
-        public int Index => index ??= All().ToList().FindIndex(s => s.Handle == Handle);
+        public int Index { get; }
 
         #endregion
 
