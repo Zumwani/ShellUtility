@@ -1,35 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    
-    <TargetFramework>net5.0-windows10.0.19041.0</TargetFramework>
-    <UseWpf>true</UseWpf>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
-    <PackageTags>shell;windows;pinvoke;desktop</PackageTags>
-    <Description>An utility to easily enumerate and get info about the windows on the users desktop. Provides functions to minimize, unminimize and close. All properties automatically updated and windows are automatically added and removed from collections when they open or close. Supports easily registering for previews of windows.</Description>
+	<PropertyGroup>
 
-    <Version></Version>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
-    <Authors>ShellUtility</Authors>
+		<TargetFrameworks>net6.0-windows10.0.19041</TargetFrameworks>
+		<LangVersion>preview</LangVersion>
+		<UseWpf>true</UseWpf>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
+		<PackageTags>shell;windows;pinvoke;desktop</PackageTags>
+		<Description>An utility to easily enumerate and get info about the windows on the users desktop. Provides functions to minimize, unminimize and close. All properties automatically updated and windows are automatically added and removed from collections when they open or close. Supports easily registering for previews of windows.</Description>
 
-  </PropertyGroup>
+		<Version></Version>
+		<AssemblyVersion></AssemblyVersion>
+		<FileVersion></FileVersion>
+		<Authors>ShellUtility</Authors>
+		<Platforms>AnyCPU;x64;x86</Platforms>
 
-  <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-  </ItemGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ShellUtility.Screens\ShellUtility.Screens.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.4.22229.4" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

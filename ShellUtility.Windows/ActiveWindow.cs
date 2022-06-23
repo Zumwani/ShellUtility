@@ -69,7 +69,7 @@ namespace ShellUtility.Windows.Utility
                 UpdateIcon(updateUWP: true);
                 UpdateTitle();
                 UpdateRect();
-                UpdateScreen();
+                //UpdateScreen();
                 (preview as IDisposable)?.Dispose();
                 preview = new Preview(handle);
 
