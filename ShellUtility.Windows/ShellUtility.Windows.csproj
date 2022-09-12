@@ -2,8 +2,7 @@
 
 	<PropertyGroup>
 
-		<TargetFrameworks>net6.0-windows10.0.19041</TargetFrameworks>
-		<LangVersion>preview</LangVersion>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWpf>true</UseWpf>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
@@ -16,18 +15,19 @@
 		<FileVersion></FileVersion>
 		<Authors>ShellUtility</Authors>
 		<Platforms>AnyCPU;x64;x86</Platforms>
+		<Nullable>enable</Nullable>
 
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.4.22229.4" />
-	</ItemGroup>
 	
 	<ItemGroup>
 		<None Include="..\LICENSE">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>
 
 </Project>

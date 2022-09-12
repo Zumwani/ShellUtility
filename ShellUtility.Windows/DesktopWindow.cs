@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Markup;
 using System.Windows.Media.Imaging;
-//using screen = ShellUtility.Screens.Screen;
 
-[assembly: XmlnsDefinition("shellutility://windows", "ShellUtility.Windows")]
-[assembly: XmlnsPrefix("shellutility://windows", "windows")]
 namespace ShellUtility.Windows;
 
 /// <summary>An representation of a window on the users desktop.</summary>
@@ -35,7 +33,6 @@ public partial class DesktopWindow : INotifyPropertyChanged
         (var process, var path) = WindowUtility.GetProcessAndPath(handle);
         ProcessPath = path;
         Process = process;
-        IsUWP = WindowUtility.IsUWPWindow(handle);
         Preview = new Preview(handle);
         Classname = WindowUtility.GetClassname(handle);
 
@@ -71,7 +68,7 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #endregion
     #region INotifyPropertyChanged
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -133,25 +130,22 @@ public partial class DesktopWindow : INotifyPropertyChanged
     public virtual IntPtr Handle { get; protected set; }
 
     /// <summary>The classname of this <see cref="DesktopWindow"/>.</summary>
-    public virtual string Classname { get; protected set; }
+    public virtual string? Classname { get; protected set; }
 
     /// <summary>The path to the owning <see cref="System.Diagnostics.Process"/> of this <see cref="DesktopWindow"/>.</summary>
-    public virtual string ProcessPath { get; protected set; }
+    public virtual string? ProcessPath { get; protected set; }
 
     /// <summary>The owning <see cref="System.Diagnostics.Process"/> of this <see cref="DesktopWindow"/>.</summary>
-    public virtual Process Process { get; protected set; }
-
-    /// <summary>Gets whatever this is a UWP window.</summary>
-    public virtual bool IsUWP { get; protected set; }
+    public virtual Process? Process { get; protected set; }
 
     /// <summary>Gets the preview for this <see cref="DesktopWindow"/>.</summary>
-    public virtual Preview Preview { get; protected set; }
+    public virtual Preview? Preview { get; protected set; }
 
     #endregion
     #region Get properties
 
     /// <summary>The title of this <see cref="DesktopWindow"/>.</summary>
-    public string Title { get; private set; }
+    public string? Title { get; private set; }
 
     /// <summary>Gets whatever this <see cref="DesktopWindow"/> is still open.</summary>
     public bool IsOpen { get; private set; }
@@ -166,47 +160,17 @@ public partial class DesktopWindow : INotifyPropertyChanged
     public bool IsMovingOrResizing { get; private set; }
 
     /// <summary>The title of this <see cref="DesktopWindow"/>.</summary>
-    public BitmapSource Icon { get; private set; } //Set by IconHandle
+    public BitmapSource? Icon { get; private set; } //Set by IconHandle
 
     /// <summary>The <see cref="System.Windows.Rect"/> of this <see cref="DesktopWindow"/> on the users desktop.</summary>
-    public Rect Rect { get; private set; }
-
-    /////// <summary>The index of the screen that this <see cref="DesktopWindow"/> is currently on.</summary>
-    //public int Screen { get; private set; }
-
-    IntPtr iconHandle;
-
-    protected void UpdateIcon(bool updateUWP = false)
-    {
-
-        if (!IsOpen)
-            return;
-
-        if (!IsUWP)
-        {
-
-            var handle = WindowUtility.GetIconHandle(Handle);
-            if (iconHandle == handle)
-                return;
-
-            iconHandle = handle;
-            Icon = WindowUtility.GetIcon(handle);
-            OnPropertyChanged(nameof(Icon));
-
-        }
-        else if (Icon == null || updateUWP)
-        {
-            Icon = UWPWindowUtility.GetIcon(Handle);
-            iconHandle = IntPtr.Zero;
-            OnPropertyChanged(nameof(Icon));
-        }
-
-    }
+    public Rect? Rect { get; private set; }
 
     #endregion
     #region Get / Set properties
 
     bool isVisible;
+    WindowStyles style;
+    WindowStylesEx exStyle;
 
     /// <summary>
     /// <para>Gets whatever the window is visible on the screen.</para>
@@ -219,6 +183,28 @@ public partial class DesktopWindow : INotifyPropertyChanged
         {
             WindowUtility.SetVisible(Handle, value);
             isVisible = WindowUtility.GetIsVisibleAndRect(Handle).isVisible;
+        }
+    }
+
+    /// <summary>Gets or sets the window style.</summary>
+    public WindowStyles Style
+    {
+        get => style;
+        set
+        {
+            if (WindowUtility.SetWindowStyle(Handle, value))
+                style = value;
+        }
+    }
+
+    /// <summary>Gets or sets the extended window style.</summary>
+    public WindowStylesEx ExStyle
+    {
+        get => exStyle;
+        set
+        {
+            if (WindowUtility.SetWindowStyle(Handle, value))
+                exStyle = value;
         }
     }
 
@@ -249,8 +235,8 @@ public partial class DesktopWindow : INotifyPropertyChanged
     public void Close() => WindowUtility.Close(Handle);
 
     /// <summary>Opens a new instance of the associated app.</summary>
-    public void OpenNewInstance() =>
-        Process.Start(ProcessPath);
+    public bool OpenNewInstance([NotNullWhen(true)] out Process? process) =>
+        (process = File.Exists(ProcessPath) ? Process.Start(ProcessPath) : null) is not null;
 
     public override string ToString() =>
         Title + " (" + Handle + ")";
@@ -258,19 +244,43 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #endregion
     #region Update
 
-    protected void UpdateTitle() =>
-        CheckValueChanged(WindowUtility.GetTitle(Handle), Title, nameof(Title), (v) => Title = v);
+    IntPtr iconHandle;
+
+    protected void UpdateIcon()
+    {
+
+        if (!IsOpen)
+            return;
+
+        var handle = WindowUtility.GetIconHandle(Handle);
+        if (iconHandle == handle)
+            return;
+
+        iconHandle = handle;
+        _ = WindowUtility.GetIcon(handle, out var icon);
+        Icon = icon;
+        OnPropertyChanged(nameof(Icon));
+
+    }
+
+    protected void UpdateTitle()
+    {
+        if (WindowUtility.GetTitle(Handle, out var title))
+            CheckValueChanged(title, Title, nameof(Title), (v) => Title = v);
+    }
 
     protected void UpdateRect() =>
         CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).rect, Rect, nameof(Rect), (v) => Rect = v ?? default);
 
-    //protected void UpdateScreen() =>
-    //    CheckValueChanged(screen.FromWindowHandle(Handle, false)?.Index ?? -1, Screen, nameof(Screen), v => Screen = v);
+    protected void UpdateStyles()
+    {
+        var (style, exStyle) = WindowUtility.GetWindowStyle(Handle);
+        CheckValueChanged(style, Style, nameof(Style), v => Style = v);
+        CheckValueChanged(exStyle, ExStyle, nameof(ExStyle), v => ExStyle = v);
+    }
 
-    /// <summary>
-    /// <para>Manually updates <see cref="IsVisibleInTaskbar"/>, <see cref="IsOpen"/> and <see cref="Icon"/>.</para>
-    /// <para>This is called by <see cref="Poller.Update"/>, if enabled.</para>
-    /// </summary>
+    /// <summary>Manually updates <see cref="IsVisibleInTaskbar"/>, <see cref="IsOpen"/> and <see cref="Icon"/>.</summary>
+    /// <remarks>This is called by <see cref="Poller.Update"/>, if enabled.</remarks>
     public virtual void Update()
     {
 
@@ -279,12 +289,10 @@ public partial class DesktopWindow : INotifyPropertyChanged
 
         UpdateIfVisibleInTaskbar();
 
-        //if (!IsVisibleInTaskbar)
-        //    return;
-
         CheckValueChanged(WindowUtility.IsOpen(Handle), IsOpen, nameof(IsOpen), (v) => IsOpen = v);
         CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).isVisible, isVisible, nameof(IsVisible), (v) => isVisible = v);
         UpdateIcon();
+        UpdateStyles();
 
     }
 
@@ -303,7 +311,7 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #endregion
     #region IsVisibleInTaskbar
 
-    internal event Action<DesktopWindow> IsVisibleInTaskbarChanged;
+    internal event Action<DesktopWindow>? IsVisibleInTaskbarChanged;
 
     /// <summary>Gets whatever this window is visible in taskbar.</summary>
     public bool IsVisibleInTaskbar { get; private set; }
@@ -325,15 +333,31 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #endregion
     #region Equality
 
-    public override bool Equals(object obj) =>
-        Equals(obj as DesktopWindow);
+    public override bool Equals(object? obj)
+    {
+        if (obj is DesktopWindow window)
+            return Equals(window);
+        else if (obj is IntPtr handle)
+            return Equals(handle);
+        return false;
+    }
 
-    public bool Equals(DesktopWindow obj) =>
-        obj != null && obj.Handle == Handle;
+    public bool Equals(DesktopWindow? window) => window is not null && window.Handle == Handle;
+    public bool Equals(IntPtr? handle) => handle is not null && handle == Handle;
+    public override int GetHashCode() => Handle.GetHashCode();
 
-    public override int GetHashCode() =>
-        Handle.GetHashCode();
+    public static bool operator ==(DesktopWindow left, DesktopWindow right) => left?.Equals(right) ?? false;
+    public static bool operator !=(DesktopWindow left, DesktopWindow right) => !(left == right);
+
+    public static bool operator ==(DesktopWindow left, IntPtr right) => left?.Equals(right) ?? false;
+    public static bool operator !=(DesktopWindow left, IntPtr right) => !(left == right);
+
+    public static bool operator ==(IntPtr left, DesktopWindow right) => right?.Equals(left) ?? false;
+    public static bool operator !=(IntPtr left, DesktopWindow right) => !(left == right);
 
     #endregion
+
+    public static implicit operator IntPtr(DesktopWindow window) =>
+        window.Handle;
 
 }

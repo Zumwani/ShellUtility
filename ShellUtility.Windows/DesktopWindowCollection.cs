@@ -67,16 +67,16 @@ public class DesktopWindowCollection : ReadOnlyObservableCollection<DesktopWindo
     #region Events
 
     /// <summary>Occurs when an icon is added.</summary>
-    public event Action<DesktopWindow> ItemAdded;
+    public event Action<DesktopWindow>? ItemAdded;
 
     /// <summary>Occurs when an icon is removed.</summary>
-    public event Action<DesktopWindow> ItemRemoved;
+    public event Action<DesktopWindow>? ItemRemoved;
 
 
     //CollectionChanged event is protected in base class, we need it to be public
 
     /// <inheritdoc cref="ObservableCollection{T}.CollectionChanged">
-    public new event NotifyCollectionChangedEventHandler CollectionChanged
+    public new event NotifyCollectionChangedEventHandler? CollectionChanged
     {
         add => base.CollectionChanged += value;
         remove => base.CollectionChanged -= value;

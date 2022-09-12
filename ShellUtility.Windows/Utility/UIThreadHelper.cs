@@ -19,11 +19,11 @@ public static class UIThreadHelper
     static UIThreadHelper() =>
         SetDispatcher(Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher);
 
-    static object lockObj;
-    static readonly List<DesktopWindowCollection> collectionsSynced = new List<DesktopWindowCollection>();
+    static object? lockObj;
+    static readonly List<DesktopWindowCollection> collectionsSynced = new();
 
     /// <summary>The dispatcher that all <see cref="DesktopWindowCollection"/> are synchronized to.</summary>
-    public static Dispatcher Dispatcher { get; private set; }
+    public static Dispatcher? Dispatcher { get; private set; }
 
     /// <summary>Sets the dispatcher that all <see cref="DesktopWindowCollection"/> should be synchronized to. This will resynchronize all existing instances of <see cref="DesktopWindowCollection"/>.</summary>
     public static void SetDispatcher(Dispatcher dispatcher)

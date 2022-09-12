@@ -12,7 +12,7 @@ namespace ShellUtility.Windows
         public static DesktopWindow Active { get; } = ActiveDesktopWindow.Instance;
 
         /// <summary>Occurs when the active window changes.</summary>
-        public static event Action ActiveWindowChanged;
+        public static event Action? ActiveWindowChanged;
 
         internal static void RaiseActiveWindowChanged() =>
             ActiveWindowChanged?.Invoke();
@@ -65,18 +65,16 @@ namespace ShellUtility.Windows.Utility
                 this.process = process;
                 classname = WindowUtility.GetClassname(handle);
 
-                isUWP = WindowUtility.IsUWPWindow(handle);
-                UpdateIcon(updateUWP: true);
+                UpdateIcon();
                 UpdateTitle();
                 UpdateRect();
-                //UpdateScreen();
+                UpdateStyles();
                 (preview as IDisposable)?.Dispose();
                 preview = new Preview(handle);
 
                 OnPropertyChanged(nameof(Handle));
                 OnPropertyChanged(nameof(ProcessPath));
                 OnPropertyChanged(nameof(Process));
-                OnPropertyChanged(nameof(IsUWP));
                 OnPropertyChanged(nameof(Classname));
 
             }
@@ -91,29 +89,25 @@ namespace ShellUtility.Windows.Utility
         #endregion
 
         IntPtr handle;
-        Process process;
-        string path;
-        bool isUWP;
-        Preview preview;
-        string classname;
+        Process? process;
+        string? path;
+        Preview? preview;
+        string? classname;
 
         /// <inheritdoc/>
         public override IntPtr Handle => handle;
 
         /// <inheritdoc/>
-        public override Process Process => process;
+        public override Process? Process => process;
 
         /// <inheritdoc/>
-        public override string ProcessPath => path;
+        public override string? ProcessPath => path;
 
         /// <inheritdoc/>
-        public override bool IsUWP => isUWP;
+        public override Preview? Preview => preview;
 
         /// <inheritdoc/>
-        public override Preview Preview => preview;
-
-        /// <inheritdoc/>
-        public override string Classname => classname;
+        public override string? Classname => classname;
 
     }
 

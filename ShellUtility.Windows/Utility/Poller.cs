@@ -24,6 +24,6 @@ public static class Poller
     private static readonly DispatcherTimer timer = new DispatcherTimer(TimeSpan.FromSeconds(0.5), DispatcherPriority.Background, (s, e) => Update?.Invoke(), Dispatcher.CurrentDispatcher);
 
     /// <summary>Occurs every <see cref="Time"/> intervals, if <see cref="IsEnabled"/>.</summary>
-    public static event Action Update;
+    public static event Action? Update;
 
 }

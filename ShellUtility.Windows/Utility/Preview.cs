@@ -16,19 +16,15 @@ namespace ShellUtility.Windows;
 partial class DesktopWindow
 {
 
-    /// <summary>
-    /// <para>(attached property) Gets the <see cref="DesktopWindow"/> that this framework element has registered to display a preview for.</para>
-    /// </summary>
-    public static DesktopWindow GetRegisterPreview(FrameworkElement obj) =>
-        (DesktopWindow)obj?.GetValue(RegisterPreviewProperty);
+    /// <summary>Gets the <see cref="DesktopWindow"/> that this framework element has registered to display a preview for.</summary>
+    public static DesktopWindow? GetRegisterPreview(FrameworkElement obj) =>
+        obj.GetValue(RegisterPreviewProperty) as DesktopWindow;
 
-    /// <summary>
-    /// <para>(attached property) Sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</para>
-    /// </summary>
+    /// <summary>Sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
     public static void SetRegisterPreview(FrameworkElement obj, DesktopWindow value) =>
-        obj?.SetValue(RegisterPreviewProperty, value);
+        obj.SetValue(RegisterPreviewProperty, value);
 
-    /// <summary>(attached property) Gets or sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
+    /// <summary>Gets or sets the <see cref="DesktopWindow"/> that this framework element should display a preview for.</summary>
     public static readonly DependencyProperty RegisterPreviewProperty =
         DependencyProperty.RegisterAttached("RegisterPreview", typeof(DesktopWindow), typeof(DesktopWindow), new PropertyMetadata(null, OnRegisterPreviewChanged));
 
@@ -154,7 +150,7 @@ public class WindowPreview : Viewbox
         Update();
     }
 
-    void WindowPreview_LayoutUpdated(object sender, EventArgs e) =>
+    void WindowPreview_LayoutUpdated(object? sender, EventArgs e) =>
         Update();
 
     void WindowPreview_SizeChanged(object sender, SizeChangedEventArgs e) =>
@@ -163,14 +159,14 @@ public class WindowPreview : Viewbox
     static bool Succeeded(int returnValue) =>
         returnValue is 0 or (-2147024809); //What is this? An error with marshalling or casting types? Throwing Win32Exception says operation completed successfully?
 
-    Window parentWindow;
+    Window? parentWindow;
     IntPtr windowHandle;
     IntPtr thumbHandle;
 
     void Register(DesktopWindow window)
     {
 
-        if (windowHandle == IntPtr.Zero || !parentWindow.IsLoaded)
+        if (windowHandle == IntPtr.Zero || parentWindow is null || !parentWindow.IsLoaded)
         {
             if (System.Windows.Window.GetWindow(this) is not Window parentWindow)
                 throw new InvalidOperationException("Cannot display preview unless attached to a window.");
@@ -192,7 +188,7 @@ public class WindowPreview : Viewbox
         thumbHandle = IntPtr.Zero;
     }
 
-    void Update(DesktopWindow window = null)
+    void Update(DesktopWindow? window = null)
     {
 
         if (PresentationSource.FromVisual(border) is null)
@@ -200,7 +196,7 @@ public class WindowPreview : Viewbox
 
         window ??= Window;
 
-        if (window is null)
+        if (window is null || parentWindow is null)
             return;
 
         if (DesignerProperties.GetIsInDesignMode(this))
@@ -328,10 +324,10 @@ public class Preview : IDisposable
         void Element_Unloaded(object sender, RoutedEventArgs e) =>
            preview.Unregister(element);
 
-        void ElementWindow_LocationChanged(object sender, EventArgs e) =>
+        void ElementWindow_LocationChanged(object? sender, EventArgs e) =>
             preview.Update(element);
 
-        void ElementWindow_LayoutUpdated(object sender, EventArgs e) =>
+        void ElementWindow_LayoutUpdated(object? sender, EventArgs e) =>
             preview.Update(element);
 
         public void Dispose()
@@ -363,15 +359,15 @@ public class Preview : IDisposable
 
     /// <inheritdoc cref="Register(FrameworkElement)"/>
     public static void Register(FrameworkElement element, DesktopWindow window) =>
-        window.Preview.Register(element);
+        window.Preview?.Register(element);
 
     /// <inheritdoc cref="Unregister(FrameworkElement)"/>
     public static void Unregister(FrameworkElement element, DesktopWindow window) =>
-        window.Preview.Unregister(element);
+        window.Preview?.Unregister(element);
 
     /// <inheritdoc cref="Update(FrameworkElement)"/>
     public static void Update(FrameworkElement element, DesktopWindow window) =>
-        window.Preview.Update(element);
+        window.Preview?.Update(element);
 
     /// <summary>Registers an element to display a preview for a window.</summary>
     public void Register(FrameworkElement element)
@@ -407,10 +403,10 @@ public class Preview : IDisposable
     /// <para>Registers the element if necessary.</para>
     /// <para>This is automatically called on <see cref="FrameworkElement.SizeChanged"/> for element registered through <see cref="Register(FrameworkElement)"/> and attached property.</para>
     /// </summary>
-    public void Update(FrameworkElement element!!)
+    public void Update(FrameworkElement element)
     {
 
-        if (!element.IsLoaded)
+        if (element is null || !element.IsLoaded)
             return;
 
         if (!registered.TryGetValue(element, out var thumb))
@@ -448,8 +444,11 @@ public class Preview : IDisposable
 
     /// <summary>Unregisters an element to display a preview for a window.</summary>
     /// <remarks>This is done automatically on <see cref="FrameworkElement.Unloaded"/> for elements registered through <see cref="Register(FrameworkElement)"/> and attached property.</remarks>
-    public void Unregister(FrameworkElement element!!)
+    public void Unregister(FrameworkElement element)
     {
+
+        if (element is null)
+            return;
 
         if (eventManagers.Remove(element, out var manager))
             manager.Dispose();
