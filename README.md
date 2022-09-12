@@ -62,5 +62,6 @@ void Initialize()
     windows.ItemAdded += (window) => Debug.WriteLine("Opened: " + window.Title);
     windows.ItemRemoved += (window) => Debug.WriteLine("Closed: " window.Title);
     DesktopWindow.ActiveWindowChanged += () => Debug.WriteLine("Active changed: " + DesktopWindow.Active.Title);
+    var foundWindows = WindowUtility.Enumerate(title: "test", processName: "*test.exe", matchCase: false);
 }
 ```
