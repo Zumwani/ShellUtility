@@ -49,6 +49,7 @@ void OpenDiscord()
 # ShellUtility.Windows
 
 Enumerates windows on the users desktop. DesktopWindowCollection automatically adds and removes windows when they open or close.
+Does not support UWP windows.
 
 Functions for minimizing, unminimizing and close are provided, properties are automatically updated. Supports easily registering with the DWM to receive window previews.
 
