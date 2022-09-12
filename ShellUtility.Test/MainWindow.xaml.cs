@@ -109,7 +109,7 @@ namespace ShellUtility.Test
             (WindowList.SelectedItem as DesktopWindow)?.Close();
 
         private void OpenNewInstanceOfWindow(object sender, RoutedEventArgs e) =>
-            (WindowList.SelectedItem as DesktopWindow)?.OpenNewInstance();
+            (WindowList.SelectedItem as DesktopWindow)?.OpenNewInstance(out _);
 
     }
 

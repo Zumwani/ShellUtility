@@ -3,7 +3,7 @@
   <PropertyGroup>
     
     <OutputType>library</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWpf>true</UseWpf>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>An utility library to enumerate notification icons on the taskbar. Provides functions for interacting with icons.</Description>
