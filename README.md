@@ -49,6 +49,7 @@ void OpenDiscord()
 # ShellUtility.Windows
 
 Enumerates windows on the users desktop. DesktopWindowCollection automatically adds and removes windows when they open or close.
+Does not support UWP windows.
 
 Functions for minimizing, unminimizing and close are provided, properties are automatically updated. Supports easily registering with the DWM to receive window previews.
 
@@ -61,5 +62,6 @@ void Initialize()
     windows.ItemAdded += (window) => Debug.WriteLine("Opened: " + window.Title);
     windows.ItemRemoved += (window) => Debug.WriteLine("Closed: " window.Title);
     DesktopWindow.ActiveWindowChanged += () => Debug.WriteLine("Active changed: " + DesktopWindow.Active.Title);
+    var foundWindows = WindowUtility.Enumerate(title: "test", processName: "*test.exe", matchCase: false);
 }
 ```
