@@ -102,6 +102,15 @@ public static class WindowUtility
     #endregion
     #region Methods
 
+    [DllImport("user32.dll")]
+    static extern IntPtr GetTopWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+    static IntPtr GetNextWindow(IntPtr handle) =>
+        GetWindow(handle, (uint)GetWindow_Cmd.GW_HWNDNEXT);
+
     [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
     static extern IntPtr GetParent(IntPtr hWnd);
 
@@ -211,6 +220,17 @@ public static class WindowUtility
 
     const int WM_GETICON = 0x7F;
     const int WM_CLOSE = 0x0010;
+
+    enum GetWindow_Cmd : uint
+    {
+        GW_HWNDFIRST = 0,
+        GW_HWNDLAST = 1,
+        GW_HWNDNEXT = 2,
+        GW_HWNDPREV = 3,
+        GW_OWNER = 4,
+        GW_CHILD = 5,
+        GW_ENABLEDPOPUP = 6
+    }
 
     [Flags]
     public enum ProcessAccess : uint
@@ -375,6 +395,46 @@ public static class WindowUtility
 
     #endregion
 
+    /// <summary>Get z index of a window.</summary>
+    public static bool GetZIndex(IntPtr handle, [NotNullWhen(true)] out int? index)
+    {
+
+        index = 0;
+        var window = GetTopWindow(GetParent(handle));
+        while (window != handle)
+        {
+
+            index += 1;
+            window = GetNextWindow(window);
+
+            if (window == IntPtr.Zero)
+            {
+                index = null;
+                return false;
+            }
+
+        }
+
+        return index is not null;
+
+    }
+
+    static int GetZIndexInternal(IntPtr handle)
+    {
+        _ = GetZIndex(handle, out var h);
+        return h ?? 0;
+    }
+
+    /// <summary>Gets all windows at the specified point.</summary>
+    /// <remarks>Ordered by z index.</remarks>
+    public static IEnumerable<DesktopWindow> GetWindowsAtPoint(Point point) =>
+        GetWindowHandlesAtPoint(point).Select(DesktopWindow.FromHandle);
+
+    /// <summary>Gets all windows at the specified point.</summary>
+    /// <remarks>Ordered by z index.</remarks>
+    public static IEnumerable<IntPtr> GetWindowHandlesAtPoint(Point point) =>
+        EnumerateHandles().Where(h => GetIsVisibleAndRect(h).rect?.Contains(point) ?? false).OrderBy(GetZIndexInternal);
+
     public static string GetClassname(IntPtr handle)
     {
         var sb = new StringBuilder(256);
@@ -484,18 +544,20 @@ public static class WindowUtility
     }
 
     /// <summary>Enumerates all desktop windows.</summary>
-    public static IEnumerable<DesktopWindow> Enumerate()
+    public static IEnumerable<DesktopWindow> Enumerate() =>
+        EnumerateHandles().Select(DesktopWindow.FromHandle);
+
+    /// <summary>Enumerates all desktop windows.</summary>
+    public static IEnumerable<IntPtr> EnumerateHandles()
     {
 
-        var list = new List<DesktopWindow>();
+        var list = new List<IntPtr>();
         _ = EnumDesktopWindows(IntPtr.Zero, (handle, lParam) =>
-          {
-
-              if (IsDesktopWindow(handle))
-                  list.Add(DesktopWindow.FromHandle(handle));
-              return true;
-
-          }, IntPtr.Zero);
+        {
+            if (IsDesktopWindow(handle))
+                list.Add(handle);
+            return true;
+        }, IntPtr.Zero);
 
         return list;
 
@@ -582,7 +644,7 @@ public static class WindowUtility
     {
 
         icon = null;
-        if (iconHandle == IntPtr.Zero)
+        if (iconHandle != IntPtr.Zero)
         {
             icon = Imaging.CreateBitmapSourceFromHIcon(iconHandle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(26, 26));
             icon.Freeze();
