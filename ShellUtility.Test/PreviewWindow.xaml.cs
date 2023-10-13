@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
-using ShellUtility.Windows;
+using ShellUtility.Windows.Models;
 
 namespace ShellUtility.Test
 {
@@ -61,7 +60,7 @@ namespace ShellUtility.Test
                 await Task.Delay(100);
                 UpdateCloseButtonRect();
             }
-        
+
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) =>
