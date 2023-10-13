@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using ShellUtility.Windows.Collections;
 
 namespace ShellUtility.Windows.Utility;
 

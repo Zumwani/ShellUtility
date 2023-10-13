@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 
@@ -36,6 +35,7 @@ static class HookUtility
     #endregion
 
     readonly static WinEventDelegate dele;
+    static IntPtr hookHandle;
 
     static HookUtility()
     {
@@ -46,7 +46,7 @@ static class HookUtility
             _ = SetWinEventHook(e, e, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
 
         //TODO: Cannot find way to make SetWinEventHook work well, using UI Automation for now
-        //SetWinEventHook(EVENT_OBJECT_CREATE, EVENT_OBJECT_CREATE, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
+        //hookHandle = SetWinEventHook((uint)Event.OBJECT_CREATE, (uint)Event.OBJECT_CREATE, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
         Automation.AddAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, TreeScope.Subtree, WindowCreated);
 
     }
@@ -67,11 +67,8 @@ static class HookUtility
         if (@event == Event.OBJECT_CREATE)
             return;
 
-        //Out-of-context callbacks (see last param of SetWinEventHook()) must be fast, 
-        //running callbacks as a task should make this a non-issue
-        _ = Task.Run(() =>
-               Application.Current?.Dispatcher?.Invoke(() =>
-                   Callbacks(@event, hwnd)));
+        _ = Application.Current?.Dispatcher.InvokeAsync(() =>
+                Callbacks(@event, hwnd));
 
     }
 

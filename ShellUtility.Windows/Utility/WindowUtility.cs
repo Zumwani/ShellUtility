@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using ShellUtility.Windows.Models;
 
 namespace ShellUtility.Windows.Utility;
 
@@ -610,10 +611,17 @@ public static class WindowUtility
     {
 
         title = null;
-        var length = GetWindowTextLength(handle);
-        var sb = new StringBuilder(length + 1);
-        if (GetWindowText(handle, sb, 256) != 0)
-            title = sb.ToString();
+
+        try
+        {
+            var length = GetWindowTextLength(handle);
+            var sb = new StringBuilder(length + 1);
+            if (GetWindowText(handle, sb, 256) != 0)
+                title = sb.ToString();
+
+        }
+        catch (Exception)
+        { }
 
         return title is not null;
 
