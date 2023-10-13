@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30523.141
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.NotifyIcons", "ShellUtility.NotifyIcons\ShellUtility.NotifyIcons.csproj", "{5DE65DEB-014C-469B-AEA3-2BA57C617D72}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility._Test", "ShellUtility.Test\ShellUtility._Test.csproj", "{35C8B221-346F-4DF8-A10F-94FD4258F5FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.Screens", "ShellUtility.Screens\ShellUtility.Screens.csproj", "{B617370E-8E90-4A05-931B-A069762E6FD5}"
 EndProject
@@ -34,14 +32,6 @@ Global
 		{5DE65DEB-014C-469B-AEA3-2BA57C617D72}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5DE65DEB-014C-469B-AEA3-2BA57C617D72}.Release|x86.ActiveCfg = Release|Any CPU
 		{5DE65DEB-014C-469B-AEA3-2BA57C617D72}.Release|x86.Build.0 = Release|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Debug|x86.Build.0 = Debug|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Release|x86.ActiveCfg = Release|Any CPU
-		{35C8B221-346F-4DF8-A10F-94FD4258F5FA}.Release|x86.Build.0 = Release|Any CPU
 		{B617370E-8E90-4A05-931B-A069762E6FD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B617370E-8E90-4A05-931B-A069762E6FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B617370E-8E90-4A05-931B-A069762E6FD5}.Debug|x86.ActiveCfg = Debug|Any CPU
