@@ -169,8 +169,8 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #region Get / Set properties
 
     bool isVisible;
-    WindowStyles style;
-    WindowStylesEx exStyle;
+    WindowStyles? style;
+    WindowStylesEx? exStyle;
 
     /// <summary>
     /// <para>Gets whatever the window is visible on the screen.</para>
@@ -187,23 +187,25 @@ public partial class DesktopWindow : INotifyPropertyChanged
     }
 
     /// <summary>Gets or sets the window style.</summary>
-    public WindowStyles Style
+    public WindowStyles? Style
     {
         get => style;
         set
         {
-            if (WindowUtility.SetWindowStyle(Handle, value))
+            if (!value.HasValue) throw new InvalidOperationException("Cannot set null as window style.");
+            if (WindowUtility.SetWindowStyle(Handle, value.Value))
                 style = value;
         }
     }
 
     /// <summary>Gets or sets the extended window style.</summary>
-    public WindowStylesEx ExStyle
+    public WindowStylesEx? ExStyle
     {
         get => exStyle;
         set
         {
-            if (WindowUtility.SetWindowStyle(Handle, value))
+            if (!value.HasValue) throw new InvalidOperationException("Cannot set null as window style.");
+            if (WindowUtility.SetWindowStyle(Handle, value.Value))
                 exStyle = value;
         }
     }
@@ -257,7 +259,7 @@ public partial class DesktopWindow : INotifyPropertyChanged
             return;
 
         iconHandle = handle;
-        _ = WindowUtility.GetIcon(handle, out var icon);
+        WindowUtility.GetIcon(handle, out var icon);
         Icon = icon;
         OnPropertyChanged(nameof(Icon));
 
@@ -274,9 +276,16 @@ public partial class DesktopWindow : INotifyPropertyChanged
 
     protected void UpdateStyles()
     {
-        var (style, exStyle) = WindowUtility.GetWindowStyle(Handle);
-        CheckValueChanged(style, Style, nameof(Style), v => Style = v);
-        CheckValueChanged(exStyle, ExStyle, nameof(ExStyle), v => ExStyle = v);
+        if (WindowUtility.GetWindowStyle(Handle, out var style, out var exStyle))
+        {
+            CheckValueChanged(style, Style, nameof(Style), v => Style = v);
+            CheckValueChanged(exStyle, ExStyle, nameof(ExStyle), v => ExStyle = v);
+        }
+        else
+        {
+            this.style = null;
+            this.exStyle = null;
+        }
     }
 
     /// <summary>Manually updates <see cref="IsVisibleInTaskbar"/>, <see cref="IsOpen"/> and <see cref="Icon"/>.</summary>

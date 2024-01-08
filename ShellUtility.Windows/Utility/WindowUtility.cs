@@ -29,7 +29,7 @@ public static class WindowUtility
     static bool IsAppWindow(IntPtr hWnd)
     {
 
-        var style = GetWindowLong(hWnd, GWL.GWL_STYLE); // GWL_STYLE
+        var style = GetWindowLongPtr(hWnd, GWL.GWL_STYLE); // GWL_STYLE
 
         // check for WS_VISIBLE and WS_CAPTION flags
         // (that the window is visible and has a title bar)
@@ -158,7 +158,7 @@ public static class WindowUtility
     static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern int GetWindowLong(IntPtr hWnd, GWL nIndex);
+    static extern int GetWindowLongPtr(IntPtr hWnd, GWL nIndex);
 
     // This helper static method is required because the 32-bit version of user32.dll does not contain this API
     // (on any versions of Windows), so linking the method will fail at run-time. The bridge dispatches the request
@@ -462,7 +462,7 @@ public static class WindowUtility
 
         var shellWindow = GetShellWindow();
 
-        var exstyle = (WindowStylesEx)GetWindowLong(handle, GWL.GWL_EXSTYLE);
+        var exstyle = (WindowStylesEx)GetWindowLongPtr(handle, GWL.GWL_EXSTYLE);
 
         var isAppWindow = exstyle.HasFlag(WindowStylesEx.WS_EX_APPWINDOW);
         var isEligbleForActivation = EligibleForActivation(handle, shellWindow);
@@ -478,13 +478,26 @@ public static class WindowUtility
 
     }
 
-    public static (WindowStyles style, WindowStylesEx exStyle) GetWindowStyle(IntPtr handle)
+    public static bool GetWindowStyle(IntPtr handle, [NotNullWhen(true)] out WindowStyles? style) =>
+        GetWindowStyle(handle, out style, out _);
+
+    public static bool GetWindowStyle(IntPtr handle, [NotNullWhen(true)] out WindowStyles? style, [NotNullWhen(true)] out WindowStylesEx? exStyle)
     {
 
-        var style = (WindowStyles)GetWindowLong(handle, GWL.GWL_STYLE);
-        var exStyle = (WindowStylesEx)GetWindowLong(handle, GWL.GWL_EXSTYLE);
+        style = null;
+        exStyle = null;
 
-        return (style, exStyle);
+        var (process, _) = GetProcessAndPath(handle);
+
+        //Getting window style too early causes some windows, like ffxiv_dx11, to become weird.
+        //This is a game though, so we probably shouldn't mess with window styles anyways
+        if (process?.ProcessName == "ffxiv_dx11")
+            return false;
+
+        style = (WindowStyles)GetWindowLongPtr(handle, GWL.GWL_STYLE);
+        exStyle = (WindowStylesEx)GetWindowLongPtr(handle, GWL.GWL_EXSTYLE);
+
+        return true;
 
     }
 
@@ -580,7 +593,7 @@ public static class WindowUtility
         _ = GetWindowPlacement(handle, ref placement);
         var isVisible =
             placement.showCmd is ShowWindowCommands.Normal or ShowWindowCommands.Maximized &&
-            GetWindowStyle(handle).style.HasFlag(WindowStyles.WS_VISIBLE);
+            GetWindowStyle(handle, out var style) && style.Value.HasFlag(WindowStyles.WS_VISIBLE);
 
         return (isVisible, ToRect(placement.rcNormalPosition));
 
