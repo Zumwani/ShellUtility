@@ -11,6 +11,7 @@
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
 	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+	<EnableWindowsTargeting>true</EnableWindowsTargeting>
 	  
   </PropertyGroup>
 

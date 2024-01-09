@@ -10,10 +10,8 @@
 		<PackageTags>shell;windows;pinvoke;desktop</PackageTags>
 		<Description>An utility to easily enumerate and get info about the windows on the users desktop. Provides functions to minimize, unminimize and close. All properties automatically updated and windows are automatically added and removed from collections when they open or close. Supports easily registering for previews of windows.</Description>
 		<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		
-		<Version></Version>
-		<AssemblyVersion></AssemblyVersion>
-		<FileVersion></FileVersion>
 		<Authors>ShellUtility</Authors>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<Nullable>enable</Nullable>
