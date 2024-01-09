@@ -9,7 +9,8 @@
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
     <PackageTags>shell;taskbar;</PackageTags>
     <Description>A utility to manage visibility of the windows taskbar.</Description>
-
+	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+	  
     <Version></Version>
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>

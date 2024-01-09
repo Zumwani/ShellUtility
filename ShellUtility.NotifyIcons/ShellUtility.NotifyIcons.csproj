@@ -13,10 +13,7 @@
     <PackageTags>icon;notify;notification-icon;notify-icon;shell;shellutility;</PackageTags>
     <Authors>ShellUtility</Authors>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
-    
-    <Version></Version>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
+	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
 
   </PropertyGroup>
 

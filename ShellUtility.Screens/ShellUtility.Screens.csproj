@@ -10,11 +10,8 @@
     <PackageTags>screen;screens;shell;shellutility;</PackageTags>
     <RepositoryUrl>https://github.com/Zumwani/ShellUtility</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Zumwani/ShellUtility</PackageProjectUrl>
-
-    <Version></Version>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
-
+	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+	  
   </PropertyGroup>
 
   <ItemGroup>
