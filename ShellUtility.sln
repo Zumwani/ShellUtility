@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.NotifyIcons", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.Screens", "ShellUtility.Screens\ShellUtility.Screens.csproj", "{B617370E-8E90-4A05-931B-A069762E6FD5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.TaskbarVisibility", "ShellUtility.TaskbarVisibility\ShellUtility.TaskbarVisibility.csproj", "{608C3959-47EF-4E70-B325-49CEB6E1ED7D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShellUtility.Windows", "ShellUtility.Windows\ShellUtility.Windows.csproj", "{F7BF7C6C-CB8A-4031-BD89-AAF82AC87C44}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2DAAB934-9DEC-4578-9935-439041977F93}"
