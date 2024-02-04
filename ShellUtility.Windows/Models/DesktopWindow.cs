@@ -169,8 +169,6 @@ public partial class DesktopWindow : INotifyPropertyChanged
     #region Get / Set properties
 
     bool isVisible;
-    WindowStyles? style;
-    WindowStylesEx? exStyle;
 
     /// <summary>
     /// <para>Gets whatever the window is visible on the screen.</para>
@@ -183,30 +181,6 @@ public partial class DesktopWindow : INotifyPropertyChanged
         {
             WindowUtility.SetVisible(Handle, value);
             isVisible = WindowUtility.GetIsVisibleAndRect(Handle).isVisible;
-        }
-    }
-
-    /// <summary>Gets or sets the window style.</summary>
-    public WindowStyles? Style
-    {
-        get => style;
-        set
-        {
-            if (!value.HasValue) throw new InvalidOperationException("Cannot set null as window style.");
-            if (WindowUtility.SetWindowStyle(Handle, value.Value))
-                style = value;
-        }
-    }
-
-    /// <summary>Gets or sets the extended window style.</summary>
-    public WindowStylesEx? ExStyle
-    {
-        get => exStyle;
-        set
-        {
-            if (!value.HasValue) throw new InvalidOperationException("Cannot set null as window style.");
-            if (WindowUtility.SetWindowStyle(Handle, value.Value))
-                exStyle = value;
         }
     }
 
@@ -274,20 +248,6 @@ public partial class DesktopWindow : INotifyPropertyChanged
     protected void UpdateRect() =>
         CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).rect, Rect, nameof(Rect), (v) => Rect = v ?? default);
 
-    protected void UpdateStyles()
-    {
-        if (WindowUtility.GetWindowStyle(Handle, out var style, out var exStyle))
-        {
-            CheckValueChanged(style, Style, nameof(Style), v => Style = v);
-            CheckValueChanged(exStyle, ExStyle, nameof(ExStyle), v => ExStyle = v);
-        }
-        else
-        {
-            this.style = null;
-            this.exStyle = null;
-        }
-    }
-
     /// <summary>Manually updates <see cref="IsVisibleInTaskbar"/>, <see cref="IsOpen"/> and <see cref="Icon"/>.</summary>
     /// <remarks>This is called by <see cref="Poller.Update"/>, if enabled.</remarks>
     public virtual void Update()
@@ -301,7 +261,6 @@ public partial class DesktopWindow : INotifyPropertyChanged
         CheckValueChanged(WindowUtility.IsOpen(Handle), IsOpen, nameof(IsOpen), (v) => IsOpen = v);
         CheckValueChanged(WindowUtility.GetIsVisibleAndRect(Handle).isVisible, isVisible, nameof(IsVisible), (v) => isVisible = v);
         UpdateIcon();
-        UpdateStyles();
 
     }
 
@@ -314,6 +273,71 @@ public partial class DesktopWindow : INotifyPropertyChanged
 
         set?.Invoke(newValue);
         OnPropertyChanged(propertyNameToNotify);
+
+    }
+
+    #endregion
+    #region Styles
+
+    /// <summary>Gets the styles for the window.</summary>
+    public bool GetStyles([NotNullWhen(true)] out WindowStyles style, [NotNullWhen(true)] out WindowStylesEx exStyle) =>
+        WindowUtility.GetWindowStyle(Handle, out style, out exStyle);
+
+    /// <summary>Sets the styles on the window.</summary>
+    /// <remarks>Specify <see langword="null"/> to not set those styles.</remarks>
+    public void SetStyles(WindowStyles? style = null, WindowStylesEx? exStyle = null)
+    {
+        if (style.HasValue)
+            WindowUtility.SetWindowStyle(Handle, style.Value);
+        if (exStyle.HasValue)
+            WindowUtility.SetWindowStyle(Handle, exStyle.Value);
+    }
+
+    /// <summary>Adds the style to the window.</summary>
+    public bool AddStyle(WindowStyles? style = null, WindowStylesEx? exStyle = null)
+    {
+
+        if (!GetStyles(out var currentStyle, out var currentExStyle))
+            return false;
+
+        if (style.HasValue && !currentStyle.HasFlag(style.Value))
+        {
+            currentStyle |= style.Value;
+            if (!WindowUtility.SetWindowStyle(Handle, currentStyle))
+                return false;
+        }
+        if (exStyle.HasValue && !currentExStyle.HasFlag(exStyle.Value))
+        {
+            currentExStyle |= exStyle.Value;
+            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle))
+                return false;
+        }
+
+        return true;
+
+    }
+
+    /// <summary>Removes the style from the window.</summary>
+    public bool RemoveStyle(WindowStyles? style = null, WindowStylesEx? exStyle = null)
+    {
+
+        if (!GetStyles(out var currentStyle, out var currentExStyle))
+            return false;
+
+        if (style.HasValue && currentStyle.HasFlag(style.Value))
+        {
+            currentStyle &= ~style.Value;
+            if (!WindowUtility.SetWindowStyle(Handle, currentStyle))
+                return false;
+        }
+        if (exStyle.HasValue && currentExStyle.HasFlag(exStyle.Value))
+        {
+            currentExStyle &= ~exStyle.Value;
+            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle))
+                return false;
+        }
+
+        return true;
 
     }
 

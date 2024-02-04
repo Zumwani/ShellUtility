@@ -478,14 +478,14 @@ public static class WindowUtility
 
     }
 
-    public static bool GetWindowStyle(IntPtr handle, [NotNullWhen(true)] out WindowStyles? style) =>
+    public static bool GetWindowStyle(IntPtr handle, out WindowStyles style) =>
         GetWindowStyle(handle, out style, out _);
 
-    public static bool GetWindowStyle(IntPtr handle, [NotNullWhen(true)] out WindowStyles? style, [NotNullWhen(true)] out WindowStylesEx? exStyle)
+    public static bool GetWindowStyle(IntPtr handle, out WindowStyles style, out WindowStylesEx exStyle)
     {
 
-        style = null;
-        exStyle = null;
+        style = default;
+        exStyle = default;
 
         var (process, _) = GetProcessAndPath(handle);
 
@@ -494,10 +494,19 @@ public static class WindowUtility
         if (process?.ProcessName == "ffxiv_dx11")
             return false;
 
-        style = (WindowStyles)GetWindowLongPtr(handle, GWL.GWL_STYLE);
-        exStyle = (WindowStylesEx)GetWindowLongPtr(handle, GWL.GWL_EXSTYLE);
+        try
+        {
 
-        return true;
+            style = (WindowStyles)GetWindowLongPtr(handle, GWL.GWL_STYLE);
+            exStyle = (WindowStylesEx)GetWindowLongPtr(handle, GWL.GWL_EXSTYLE);
+
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
 
     }
 
