@@ -293,6 +293,12 @@ public partial class DesktopWindow : INotifyPropertyChanged
             WindowUtility.SetWindowStyle(Handle, exStyle.Value);
     }
 
+    /// <inheritdoc cref="AddStyle(WindowStyles?, WindowStylesEx?)"/>
+    public bool AddStyle(WindowStyles style) => AddStyle(style, null);
+
+    /// <inheritdoc cref="AddStyle(WindowStyles?, WindowStylesEx?)"/>
+    public bool AddStyle(WindowStylesEx exStyle) => AddStyle(null, exStyle);
+
     /// <summary>Adds the style to the window.</summary>
     public bool AddStyle(WindowStyles? style = null, WindowStylesEx? exStyle = null)
     {
@@ -302,20 +308,24 @@ public partial class DesktopWindow : INotifyPropertyChanged
 
         if (style.HasValue && !currentStyle.HasFlag(style.Value))
         {
-            currentStyle |= style.Value;
-            if (!WindowUtility.SetWindowStyle(Handle, currentStyle))
+            if (!WindowUtility.SetWindowStyle(Handle, currentStyle.SetFlag(style.Value)))
                 return false;
         }
         if (exStyle.HasValue && !currentExStyle.HasFlag(exStyle.Value))
         {
-            currentExStyle |= exStyle.Value;
-            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle))
+            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle.SetFlag(exStyle.Value)))
                 return false;
         }
 
         return true;
 
     }
+
+    /// <inheritdoc cref="RemoveStyle(WindowStyles?, WindowStylesEx?)"/>
+    public bool RemoveStyle(WindowStyles style) => RemoveStyle(style, null);
+
+    /// <inheritdoc cref="RemoveStyle(WindowStyles?, WindowStylesEx?)"/>
+    public bool RemoveStyle(WindowStylesEx exStyle) => RemoveStyle(null, exStyle);
 
     /// <summary>Removes the style from the window.</summary>
     public bool RemoveStyle(WindowStyles? style = null, WindowStylesEx? exStyle = null)
@@ -326,14 +336,12 @@ public partial class DesktopWindow : INotifyPropertyChanged
 
         if (style.HasValue && currentStyle.HasFlag(style.Value))
         {
-            currentStyle &= ~style.Value;
-            if (!WindowUtility.SetWindowStyle(Handle, currentStyle))
+            if (!WindowUtility.SetWindowStyle(Handle, currentStyle.RemoveFlag(style.Value)))
                 return false;
         }
         if (exStyle.HasValue && currentExStyle.HasFlag(exStyle.Value))
         {
-            currentExStyle &= ~exStyle.Value;
-            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle))
+            if (!WindowUtility.SetWindowStyle(Handle, currentExStyle.RemoveFlag(exStyle.Value)))
                 return false;
         }
 
