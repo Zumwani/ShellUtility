@@ -69,7 +69,6 @@ namespace ShellUtility.Windows.Utility
                 UpdateIcon();
                 UpdateTitle();
                 UpdateRect();
-                UpdateStyles();
                 (preview as IDisposable)?.Dispose();
                 preview = new Preview(handle);
 

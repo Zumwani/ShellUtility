@@ -602,7 +602,7 @@ public static class WindowUtility
         _ = GetWindowPlacement(handle, ref placement);
         var isVisible =
             placement.showCmd is ShowWindowCommands.Normal or ShowWindowCommands.Maximized &&
-            GetWindowStyle(handle, out var style) && style.Value.HasFlag(WindowStyles.WS_VISIBLE);
+            GetWindowStyle(handle, out var style) && style.HasFlag(WindowStyles.WS_VISIBLE);
 
         return (isVisible, ToRect(placement.rcNormalPosition));
 
