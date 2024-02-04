@@ -676,8 +676,15 @@ public static class WindowUtility
         icon = null;
         if (iconHandle != IntPtr.Zero)
         {
-            icon = Imaging.CreateBitmapSourceFromHIcon(iconHandle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(26, 26));
-            icon.Freeze();
+            try
+            {
+                icon = Imaging.CreateBitmapSourceFromHIcon(iconHandle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(26, 26));
+                icon.Freeze();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         return icon is not null;
