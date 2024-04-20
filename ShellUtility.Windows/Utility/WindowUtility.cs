@@ -697,15 +697,24 @@ public static class WindowUtility
         if (handle == IntPtr.Zero)
             return default;
 
-        _ = GetWindowThreadProcessId(handle, out var pid);
-        var process = Process.GetProcessById((int)pid);
+        try
+        {
 
-        var processHandle = OpenProcess(ProcessAccess.QueryLimitedInformation, false, process.Id);
-        var capacity = 1024;
-        var path = new StringBuilder(capacity);
-        _ = QueryFullProcessImageName(processHandle, 0, path, ref capacity);
+            _ = GetWindowThreadProcessId(handle, out var pid);
+            var process = Process.GetProcessById((int)pid);
 
-        return (process, path.ToString());
+            var processHandle = OpenProcess(ProcessAccess.QueryLimitedInformation, false, process.Id);
+            var capacity = 1024;
+            var path = new StringBuilder(capacity);
+            _ = QueryFullProcessImageName(processHandle, 0, path, ref capacity);
+
+            return (process, path.ToString());
+
+        }
+        catch (Exception)
+        {
+            return default;
+        }
 
     }
 
