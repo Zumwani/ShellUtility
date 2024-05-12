@@ -32,6 +32,8 @@ Rect GetCurrentScreenWorkArea()
 
 # ShellUtility.NotifyIcons
 
+> ### Does not work for Windows 11.
+
 Enumerates the notify icons on the taskbar and provides functions to interact with them.
 
 ```csharp
