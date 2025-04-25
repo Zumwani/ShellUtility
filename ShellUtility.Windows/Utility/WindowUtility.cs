@@ -703,6 +703,9 @@ public static class WindowUtility
             _ = GetWindowThreadProcessId(handle, out var pid);
             var process = Process.GetProcessById((int)pid);
 
+            if (process.HasExited)
+                return default;
+
             var processHandle = OpenProcess(ProcessAccess.QueryLimitedInformation, false, process.Id);
             var capacity = 1024;
             var path = new StringBuilder(capacity);

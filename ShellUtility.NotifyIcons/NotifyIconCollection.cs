@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using static ShellUtility.NotifyIcons.Explorer;
 
 namespace ShellUtility.NotifyIcons
@@ -46,9 +45,6 @@ namespace ShellUtility.NotifyIcons
         #endregion
 
         readonly NotifyIconNotifier notifier;
-
-        [DllImport("shell32.dll")]
-        static extern bool Shell_NotifyIcon(uint dwMessage, [In] ref NOTIFYITEM pnid);
 
         public NotifyIconCollection() : base(new ObservableCollection<NotifyIcon>()) =>
             notifier = new NotifyIconNotifier(OnNotify);
